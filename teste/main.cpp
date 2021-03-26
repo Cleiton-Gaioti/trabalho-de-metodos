@@ -16,6 +16,7 @@ void lerArquivo(string arq){
         posicoesCandidatas[i].id = i+1;
         fscanf(f, "%d", &posicoesCandidatas[i].quantidadeDeConflitos);
         vetorDePesos[i] = (double)posicoesCandidatas[i].quantidadeDeConflitos/numeroDePontos;
+        //cout << vetorDePesos[i] << " ";
         for(int j = 0; j < posicoesCandidatas[i].quantidadeDeConflitos; j++) {
             fscanf(f, "%d", &posicoesCandidatas[i].conflitos[j]);
         }
@@ -24,8 +25,24 @@ void lerArquivo(string arq){
     fclose(f);
 }
 
-void ordenarVetorDePesos() {
+void ordenarVetor() {
 
+    for (int i = 0; i < numeroDePontos*numeroDePosicoesCandidatas; i++) {
+        vetorDeIndiceDePesosOrdenados[i] = i;
+    }
+
+    for (int i = 1; i < numeroDePontos*numeroDePosicoesCandidatas; i++) {
+        for (int j = 0; j < numeroDePontos*numeroDePosicoesCandidatas - 1; j++){
+            if(vetorDePesos[j] > vetorDePesos[j + 1]) {
+                int aux = vetorDeIndiceDePesosOrdenados[j];
+                vetorDeIndiceDePesosOrdenados[j] = vetorDeIndiceDePesosOrdenados[j+1];
+                vetorDeIndiceDePesosOrdenados[j+1] = aux;
+            }
+        }
+    }
+    
+    for (int i = 0; i < numeroDePontos*numeroDePosicoesCandidatas; i++)
+        cout << vetorDePesos[vetorDeIndiceDePesosOrdenados[i]] << endl;
 }
 
 int gerarNumero(int lim_inf, int lim_sup){
@@ -89,12 +106,12 @@ void testarDados(Solucao &s, string arq)
 void lerSolucaoDeArquivo(Solucao &s, string path){
     FILE* f = fopen(path.c_str(), "r");
 
-    numeroDePontos = fscanf(f, "%d");
-    numeroDePosicoesCandidatas = fscanf(f, "%d");
-    s.funcao_objetivo = fscanf(f, "%d");
+    fscanf(f, "%d", &numeroDePontos);
+    fscanf(f, "%d", &numeroDePosicoesCandidatas);
+    fscanf(f, "%d", &s.funcao_objetivo);
 
     for (int i = 0; i < numeroDePontos; i++) {
-        s.posicaoDosPontos[i] = fscanf(f, "%d");
+        fscanf(f, "%d", &s.posicaoDosPontos[i]);
     }
 
     fclose(f);
@@ -148,7 +165,9 @@ int main(){
 
     Solucao sol;
     lerArquivo("i25.txt");
-    ordenarVetorDePesos();
+    //cout << endl;
+    //ordenarVetor();
+
     int opcao;
     
     cout << "1 - SOLUÇÃO INICIAL" << endl;
