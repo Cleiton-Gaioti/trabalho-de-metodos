@@ -61,6 +61,7 @@ void calcularFO(Solucao &s){
                 for(int k = 0; k < posicoesCandidatas[s.posicaoDosPontos[i] - 1].quantidadeDeConflitos; k++) {
                     if(s.posicaoDosPontos[j] == posicoesCandidatas[s.posicaoDosPontos[i] - 1].conflitos[k]) {
                         posicoesConflitantes[i] = posicoesConflitantes[j] = 0;
+                        s.numeroDeConflitos++;
                         break;
                     }
                 }
@@ -90,9 +91,9 @@ void testarDados(Solucao &s, string arq)
         f = stdout;
     else
         f = fopen(arq.c_str(), "w");
-    fprintf(f,"Numero de pontos %d\n", numeroDePontos);
+    fprintf(f, "Numero de pontos %d\n", numeroDePontos);
     fprintf(f, "Numero de posicoes candidatas %d\n", numeroDePosicoesCandidatas);
-    fprintf(f, "Numero de conflitos %d\n", numeroDePontos - s.funcao_objetivo);
+    fprintf(f, "Numero de conflitos %d\n", s.numeroDeConflitos);
     fprintf(f,"Valor da FO %d\n", s.funcao_objetivo);
     for(int i = 0; i < numeroDePontos; i++)
         fprintf(f, "%d\n", s.posicaoDosPontos[i]);
@@ -104,13 +105,15 @@ void lerSolucaoDeArquivo(Solucao &s, string path){
     FILE* f = fopen(path.c_str(), "r");
 
     fscanf(f, "%d", &numeroDePontos);
+    cout << numeroDePontos << endl;
     fscanf(f, "%d", &numeroDePosicoesCandidatas);
     cout << numeroDePosicoesCandidatas << endl;
-    cout << s.funcao_objetivo << endl;
     fscanf(f, "%d", &s.funcao_objetivo);
+    cout << s.funcao_objetivo << endl;
 
-    for (int i = 0; i < numeroDePontos; i++) {
+    for (int i = 0; i <= numeroDePontos; i++) {
         fscanf(f, "%d", &s.posicaoDosPontos[i]);
+        cout << s.posicaoDosPontos[i] << endl;
     }
 
     fclose(f);
@@ -131,7 +134,7 @@ void testarF0(Solucao &s){
     cout << "Tempo de execução: " << tempo << "s" << endl;
 }
 
-void testarHeuristica(Solucao &s) {
+void testarHeuristicaConstrutivaAleatoria(Solucao &s) {
     clock_t h;
     double tempo;
     
@@ -145,57 +148,98 @@ void testarHeuristica(Solucao &s) {
     cout << "Tempo de execução: " << tempo << "s" << endl;
 }
 
-void solucaoInicial(Solucao &s){
+void testarHeuristicaConstrutivaGulosa(Solucao &s) {
+    clock_t h;
+    double tempo;
+    
+    h = clock();
+    for (int i = 0; i < 1000; i++) {
+        heuConGul(s);
+    }
+    h = clock() - h;
+
+    tempo = (double) h/CLOCKS_PER_SEC;
+    cout << "Tempo de execução: " << tempo << "s" << endl;
+}
+
+void solucaoInicialAleatoria(Solucao &s){
     clock_t h;
     double tempo;
     h = clock();
-
-    heuConGul(s);
-    //heuConAle(s);
+    
+    heuConAle(s);
     calcularFO(s);
 
     h = clock() - h;
 
     tempo = (double) h/CLOCKS_PER_SEC;
     printf("Tempo de execução: %.5lfs\n", tempo);
-    cout << s.funcao_objetivo << endl;
+    cout << "Valor da FO: " << s.funcao_objetivo << endl;
 }
+
+void solucaoInicialGulosa(Solucao &s) {
+    clock_t h;
+    double tempo;
+    h = clock();
+
+    heuConGul(s);
+    calcularFO(s);
+
+    h = clock() - h;
+
+    tempo = (double) h/CLOCKS_PER_SEC;
+    printf("Tempo de execução: %.5lfs\n", tempo);
+    cout << "Valor da FO: " << s.funcao_objetivo << endl;
+}
+
 
 int main(){
 
-    Solucao sol;
+    Solucao sol1, sol2;
     lerArquivo("i13206p8.txt");
+    //lerSolucaoDeArquivo(sol1, "arq.txt");
 
     int opcao;
-    
-    cout << "1 - SOLUÇÃO INICIAL" << endl;
-    cout << "2 - TESTAR HEURÍSTICA" << endl;
-    cout << "3 - TESTAR FUNÇÃO OBJETIVO" << endl;
-    cout << "0 - SAIR" << endl;
 
-    cin >> opcao;
-
-    while(opcao < 0 || opcao > 3) {
-        cout << "1 - SOLUÇÃO INICIAL" << endl;
-        cout << "2 - TESTAR HEURÍSTICA" << endl;
-        cout << "3 - TESTAR FUNÇÃO OBJETIVO" << endl;
+    do {
+        cout << "1 - SOLUÇÃO INICIAL ALEATÓRIA" << endl;
+        cout << "2 - SOLUÇÃO INICIAL GULOSA" << endl;
+        cout << "3 - TESTAR HEURÍSTICA CONSTRUTIVA ALEATÓRIA" << endl;
+        cout << "4 - TESTAR HEURÍSTICA CONSTRUTIVA GULOSA" << endl;
+        cout << "5 - TESTAR FUNÇÃO OBJETIVO ALEATÓRIA" << endl;
+        cout << "6 - TESTAR FUNÇÃO OBJETIVO GULOSA" << endl;
         cout << "0 - SAIR" << endl;
 
         cin >> opcao;
-    }
 
-    switch (opcao) {
-    case 1:
-        solucaoInicial(sol);
-        break;
-    case 2:
-        testarHeuristica(sol);
-        break;
-    case 3:
-        testarF0(sol);
-    case 0:
-        break;
-    }
+        switch (opcao) {
+        case 1:
+            solucaoInicialAleatoria(sol1);
+            testarDados(sol1, "solHeuConAle.txt");
+            break;
+        case 2:
+            solucaoInicialGulosa(sol2);
+            testarDados(sol2, "solHeuConGul.txt");
+            break;
+        case 3:
+            testarHeuristicaConstrutivaAleatoria(sol1);
+            break;
+        case 4:
+            testarHeuristicaConstrutivaGulosa(sol2);
+            break;
+        case 5:
+            calcularFO(sol1);
+            break;
+        case 6:
+            calcularFO(sol2);
+            break;
+        case 0:
+            break;
+        default:
+            cout << "OPÇÃO INVÁLIDA!" << endl;
+        }
+
+    }  while(opcao != 0);
 
     return 0;
 }
