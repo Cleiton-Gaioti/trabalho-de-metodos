@@ -148,8 +148,8 @@ void solucaoInicial(Solucao &s){
     double tempo;
     h = clock();
 
-    heuConAle(s);
-    //heuConsGul(s);
+    heuConGul(s);
+    //heuConAle(s);
     calcularFO(s);
 
     h = clock() - h;
