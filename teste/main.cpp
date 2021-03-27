@@ -105,6 +105,8 @@ void lerSolucaoDeArquivo(Solucao &s, string path){
 
     fscanf(f, "%d", &numeroDePontos);
     fscanf(f, "%d", &numeroDePosicoesCandidatas);
+    cout << numeroDePosicoesCandidatas << endl;
+    cout << s.funcao_objetivo << endl;
     fscanf(f, "%d", &s.funcao_objetivo);
 
     for (int i = 0; i < numeroDePontos; i++) {
