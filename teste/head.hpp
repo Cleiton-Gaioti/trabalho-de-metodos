@@ -22,6 +22,7 @@ int vetorDeIndiceDePesosOrdenados[TAMANHO_MAXIMO];
 typedef struct solucao {
     int posicaoDosPontos[MAXIMO_PONTOS];
     int funcao_objetivo;
+    int numeroDeConflitos;
 }Solucao;
 
 void lerArquivo(std::string arq);
@@ -29,6 +30,8 @@ void lerArquivo(std::string arq);
 int gerarNumero(int lim_inf, int lim_sup);
 
 void heuConAle(Solucao &s);
+
+void heuConGul(Solucao &s);
 
 void calcularFO(Solucao &s);
 
@@ -40,6 +43,10 @@ void lerSolucaoDeArquivo(Solucao &s, std::string path);
 
 void testarF0(Solucao &s);
 
-void testarHeuristica(Solucao &s);
+void testarHeuristicaConstrutivaAleatoria(Solucao &s);
+
+void solucaoInicialAleatoria(Solucao &s);
+
+void solucaoInicialGulosa(Solucao &s);
 
 #endif

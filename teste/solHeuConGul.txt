@@ -1,0 +1,29 @@
+Numero de pontos 25
+Numero de posicoes candidatas 4
+Numero de conflitos 5
+Valor da FO 15
+2
+8
+12
+13
+19
+23
+28
+29
+34
+37
+41
+45
+49
+53
+58
+64
+67
+70
+76
+78
+81
+85
+92
+94
+98
