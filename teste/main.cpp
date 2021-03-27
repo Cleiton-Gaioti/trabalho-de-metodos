@@ -25,26 +25,6 @@ void lerArquivo(string arq){
     fclose(f);
 }
 
-void ordenarVetor() {
-
-    for (int i = 0; i < numeroDePontos*numeroDePosicoesCandidatas; i++) {
-        vetorDeIndiceDePesosOrdenados[i] = i;
-    }
-
-    for (int i = 1; i < numeroDePontos*numeroDePosicoesCandidatas; i++) {
-        for (int j = 0; j < numeroDePontos*numeroDePosicoesCandidatas - 1; j++){
-            if(vetorDePesos[j] > vetorDePesos[j + 1]) {
-                int aux = vetorDeIndiceDePesosOrdenados[j];
-                vetorDeIndiceDePesosOrdenados[j] = vetorDeIndiceDePesosOrdenados[j+1];
-                vetorDeIndiceDePesosOrdenados[j+1] = aux;
-            }
-        }
-    }
-    
-    for (int i = 0; i < numeroDePontos*numeroDePosicoesCandidatas; i++)
-        cout << vetorDePesos[vetorDeIndiceDePesosOrdenados[i]] << endl;
-}
-
 int gerarNumero(int lim_inf, int lim_sup){
     return(lim_inf + rand() % (lim_sup-lim_inf+1));
 }
@@ -53,6 +33,23 @@ void heuConAle(Solucao &s) {
     for(int j = 0; j < numeroDePontos; j++) {
         s.posicaoDosPontos[j] = gerarNumero(j*numeroDePosicoesCandidatas + 1, (j+1)*numeroDePosicoesCandidatas);
     }
+}
+
+void heuConGul(Solucao &s) {
+
+    for (int i = 0; i < numeroDePontos; i++) {
+        double menorPeso = __DBL_MAX__;
+        int indMenorPeso = 0;
+        for(int j = i * numeroDePosicoesCandidatas; j < (i + 1) * numeroDePosicoesCandidatas; j++) {
+            if(vetorDePesos[j] < menorPeso) {
+                menorPeso = vetorDePesos[j];
+                indMenorPeso = j + 1;
+            }
+        }
+        s.posicaoDosPontos[i] = indMenorPeso;
+        //cout << s.posicaoDosPontos[i] << " ";
+    }
+    
 }
 
 void calcularFO(Solucao &s){
@@ -152,6 +149,7 @@ void solucaoInicial(Solucao &s){
     h = clock();
 
     heuConAle(s);
+    //heuConsGul(s);
     calcularFO(s);
 
     h = clock() - h;
@@ -164,9 +162,7 @@ void solucaoInicial(Solucao &s){
 int main(){
 
     Solucao sol;
-    lerArquivo("i25.txt");
-    //cout << endl;
-    //ordenarVetor();
+    lerArquivo("i13206p8.txt");
 
     int opcao;
     
