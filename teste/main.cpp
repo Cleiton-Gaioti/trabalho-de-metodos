@@ -14,13 +14,13 @@ using namespace std;
  *  dado pelo (nº de conflitos)/(nº de pontos).
  */
 
-void lerArquivo(string arq){
+void lerArquivo(string arq) {
     FILE* f = fopen(arq.c_str(), "r");
 
     fscanf(f, "%d %d", &numeroDePontos, &numeroDePosicoesCandidatas);
     memset(&posicoesCandidatas->id, -1, sizeof(posicoesCandidatas));
 
-    for(int i = 0; i < (numeroDePontos*numeroDePosicoesCandidatas); i++){
+    for(int i = 0; i < (numeroDePontos*numeroDePosicoesCandidatas); i++) {
         posicoesCandidatas[i].id = i+1;
         fscanf(f, "%d", &posicoesCandidatas[i].quantidadeDeConflitos);
         vetorDePesos[i] = (double)posicoesCandidatas[i].quantidadeDeConflitos/numeroDePontos;
@@ -86,16 +86,16 @@ void calcularFO(Solucao &s){
     s.funcao_objetivo = contador;
 }
 
-void clonarSolucao(Solucao &s1, Solucao &s2){
+void clonarSolucao(Solucao &s1, Solucao &s2) {
     s2.funcao_objetivo = s2.funcao_objetivo;
     for (int i = 0; i < numeroDePontos; i++) {
         s2.posicaoDosPontos[i] = s1.posicaoDosPontos[i];
     } 
 }
 
-void testarDados(Solucao &s, string arq){
+void testarDados(Solucao &s, string arq) {
     FILE *f;
-    if(arq.empty()){
+    if(arq.empty()) {
         printf("Numero de pontos %d\n", numeroDePontos);
         printf("Numero de posicoes candidatas %d\n", numeroDePosicoesCandidatas);
         printf("Numero de conflitos %d\n", s.numeroDeConflitos);
@@ -112,10 +112,10 @@ void testarDados(Solucao &s, string arq){
             fprintf(f, "%d\n", s.posicaoDosPontos[i]);
     }
     if(arq != "")
-    fclose(f);
+        fclose(f);
 }
 
-void lerSolucaoDeArquivo(Solucao &s, string path){
+void lerSolucaoDeArquivo(Solucao &s, string path) {
     try {
         FILE* f = fopen(path.c_str(), "r");
 

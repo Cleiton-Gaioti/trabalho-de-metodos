@@ -1,6 +1,6 @@
 Numero de pontos 13206
 Numero de posicoes candidatas 8
-Numero de conflitos 2286284
+Numero de conflitos 2284
 Valor da FO 9627
 Posição de cada ponto
 4
