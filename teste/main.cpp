@@ -51,7 +51,6 @@ void heuConGul(Solucao &s) {
         s.posicaoDosPontos[i] = indMenorPeso;
         //cout << s.posicaoDosPontos[i] << " ";
     }
-    
 }
 
 /*
@@ -70,7 +69,6 @@ void calcularFO(Solucao &s){
                 for(int k = 0; k < posicoesCandidatas[s.posicaoDosPontos[i] - 1].quantidadeDeConflitos; k++) {
                     if(s.posicaoDosPontos[j] == posicoesCandidatas[s.posicaoDosPontos[i] - 1].conflitos[k]) {
                         posicoesConflitantes[i] = posicoesConflitantes[j] = 0;
-                        s.numeroDeConflitos++;
                         break;
                     }
                 }
@@ -86,31 +84,44 @@ void calcularFO(Solucao &s){
     s.funcao_objetivo = contador;
 }
 
-void clonarSolucao(Solucao &s1, Solucao &s2) {
-    s2.funcao_objetivo = s2.funcao_objetivo;
+void calcularConflitos(Solucao &s) {
+    int conflitos = 0;
+
     for (int i = 0; i < numeroDePontos; i++) {
-        s2.posicaoDosPontos[i] = s1.posicaoDosPontos[i];
-    } 
+        for(int j = i + 1; j < numeroDePontos; j++) {
+            for(int k = 0; k < posicoesCandidatas[s.posicaoDosPontos[i] - 1].quantidadeDeConflitos; k++) {
+                if(s.posicaoDosPontos[j] == posicoesCandidatas[s.posicaoDosPontos[i] - 1].conflitos[k]) {
+                    conflitos++;
+                }
+            }
+        }
+    }
+    s.numeroDeConflitos = conflitos;
+}
+
+void clonarSolucao(Solucao &s1, Solucao &s2) {
+    memcpy(&s2, &s1, sizeof(s1));
+    testarDados(s2, "");
 }
 
 void testarDados(Solucao &s, string arq) {
     FILE *f;
-    if(arq.empty()) {
-        printf("Numero de pontos %d\n", numeroDePontos);
-        printf("Numero de posicoes candidatas %d\n", numeroDePosicoesCandidatas);
-        printf("Numero de conflitos %d\n", s.numeroDeConflitos);
-        printf("Valor da FO %d\n", s.funcao_objetivo);
-        cout << "Solução completa gerada no arquivo solHeuConGul.txt\n" << endl;
-    } else {
+    if(arq.empty()) 
+        f = stdout;
+    else 
         f = fopen(arq.c_str(), "w");
-        fprintf(f, "Numero de pontos %d\n", numeroDePontos);
-        fprintf(f, "Numero de posicoes candidatas %d\n", numeroDePosicoesCandidatas);
-        fprintf(f, "Numero de conflitos %d\n", s.numeroDeConflitos);
-        fprintf(f, "Valor da FO %d\n", s.funcao_objetivo);
+    fprintf(f, "Numero de pontos %d\n", numeroDePontos);
+    fprintf(f, "Numero de posicoes candidatas %d\n", numeroDePosicoesCandidatas);
+    fprintf(f, "Numero de conflitos %d\n", s.numeroDeConflitos);
+    fprintf(f, "Valor da FO %d\n", s.funcao_objetivo);
+
+    if(f != stdout){
         fprintf(f, "Posição de cada ponto\n");
         for(int i = 0; i < numeroDePontos; i++)
             fprintf(f, "%d\n", s.posicaoDosPontos[i]);
-    }
+    } else
+        cout << "Solução completa gerada no arquivo solHeuConGul.txt\n" << endl;
+
     if(arq != "")
         fclose(f);
 }
@@ -125,6 +136,7 @@ void lerSolucaoDeArquivo(Solucao &s, string path) {
 
         for (int i = 0; i < numeroDePontos; i++) {
             fscanf(f, "%d", &s.posicaoDosPontos[i]);
+            s.posicaoDosPontos[i] += numeroDePosicoesCandidatas*i;
         }
 
         cout << "Solução copiada\n" << endl;
@@ -192,11 +204,18 @@ void solucaoInicialGulosa(Solucao &s) {
 }
 
 
+/*
+ *  Criar uma função a parte para calcular o número de conflitos
+ *  Ajeitar a leitura da solucao
+ *  Ajeitar a função de testar dados
+ */
+
 int main(){
 
     Solucao sol;
-    lerArquivo("i13206p8.txt");
-    //lerSolucaoDeArquivo(sol1, "arq.txt");
+    lerArquivo("i25.txt");
+    //lerSolucaoDeArquivo(sol, "arq.txt");
+    //testarDados(sol, "solHeuConGul");
 
     int opcao;
     string arq;
@@ -216,6 +235,7 @@ int main(){
         switch (opcao) {
         case 1:
             solucaoInicialGulosa(sol);
+            calcularConflitos(sol);
             testarDados(sol, "solHeuConGul.txt");
             break;
         case 2:
