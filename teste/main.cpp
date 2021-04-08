@@ -118,7 +118,7 @@ void testarDados(Solucao &s, string arq) {
     if(f != stdout){
         fprintf(f, "Posição de cada ponto\n");
         for(int i = 0; i < numeroDePontos; i++)
-            fprintf(f, "%d\n", s.posicaoDosPontos[i]);
+            fprintf(f, "%d\n", (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas) == 0 ? numeroDePosicoesCandidatas : (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas));
     } else
         cout << "Solução completa gerada no arquivo solHeuConGul.txt\n" << endl;
 
@@ -201,6 +201,8 @@ void solucaoInicialGulosa(Solucao &s) {
     tempo = (double) h/CLOCKS_PER_SEC;
     printf("Tempo de execução: %.5lfs\n", tempo);
     cout << "Valor da FO: " << s.funcao_objetivo << endl;
+    calcularConflitos(s);
+
 }
 
 
@@ -235,7 +237,6 @@ int main(){
         switch (opcao) {
         case 1:
             solucaoInicialGulosa(sol);
-            calcularConflitos(sol);
             testarDados(sol, "solHeuConGul.txt");
             break;
         case 2:
