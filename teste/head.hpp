@@ -17,7 +17,6 @@ int numeroDePosicoesCandidatas;
 Campo posicoesCandidatas[TAMANHO_MAXIMO];
 int posicoesConflitantes[MAXIMO_PONTOS];
 double vetorDePesos[TAMANHO_MAXIMO];
-///int vetorDeIndiceDePesosOrdenados[TAMANHO_MAXIMO];
 
 typedef struct solucao {
     int posicaoDosPontos[MAXIMO_PONTOS];
