@@ -215,7 +215,7 @@ void solucaoInicialGulosa(Solucao &s) {
 int main(){
 
     Solucao sol;
-    lerArquivo("i25.txt");
+    lerArquivo("arquivos/i25.txt");
     //lerSolucaoDeArquivo(sol, "arq.txt");
     //testarDados(sol, "solHeuConGul");
 
@@ -237,7 +237,7 @@ int main(){
         switch (opcao) {
         case 1:
             solucaoInicialGulosa(sol);
-            testarDados(sol, "solHeuConGul.txt");
+            testarDados(sol, "arquivos/solHeuConGul.txt");
             break;
         case 2:
             testarHeuristicaConstrutivaGulosa(sol);
