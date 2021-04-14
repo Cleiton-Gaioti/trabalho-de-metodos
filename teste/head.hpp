@@ -24,15 +24,19 @@ typedef struct solucao {
     int numeroDeConflitos;
 }Solucao;
 
+void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo_total);
+
+void gerarVizinha(Solucao &s, int qtd);
+
+void heuBLPM(Solucao &s);
+
 void lerArquivo(std::string arq);
-
-int gerarNumero(int lim_inf, int lim_sup);
-
-void heuConAle(Solucao &s);
 
 void heuConGul(Solucao &s);
 
 void calcularFO(Solucao &s);
+
+void calcularConflitos(Solucao &s);
 
 void clonarSolucao(Solucao &s1, Solucao &s2);
 
@@ -42,10 +46,18 @@ void lerSolucaoDeArquivo(Solucao &s, std::string path);
 
 void testarF0(Solucao &s);
 
+void testarHeuristicaConstrutivaGulosa(Solucao &s);
+
+void solucaoInicialGulosa(Solucao &s);
+
+/*
+int gerarNumero(int lim_inf, int lim_sup);
+
+void heuConAle(Solucao &s);
+
 void testarHeuristicaConstrutivaAleatoria(Solucao &s);
 
 void solucaoInicialAleatoria(Solucao &s);
-
-void solucaoInicialGulosa(Solucao &s);
+*/
 
 #endif

@@ -6,6 +6,61 @@
 
 using namespace std;
 
+void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo_total) {
+    int v;
+    clock_t hi,hf;
+    Solucao s_vizinha;
+    cout << "EXECUTANDO O VNS...\n" << endl;
+    hi = clock();
+    heuConGul(s);
+    calcularFO(s);
+    hf = clock();
+    tempo_melhor = ((double)(hf - hi))/CLOCKS_PER_SEC;
+    #ifdef DBG
+        printf("FO: %d\tTempo: %.2f\n", s.funcao_objetivo, tempo_melhor);
+    #endif
+    tempo_total = tempo_melhor;
+
+    while (tempo_total < tempo_max) {
+        v = 1;
+        while (v <= 4) {
+            memcpy(&s_vizinha, &s, sizeof(s));
+            if(v == 1) {
+                gerarVizinha(s_vizinha, 1);
+            } else if(v == 2) {
+                gerarVizinha(s_vizinha, 2);
+            } else if(v == 3) {
+                gerarVizinha(s_vizinha, 3);
+            } else 
+                gerarVizinha(s_vizinha, 4);
+
+            heuBLPM(s_vizinha);
+
+            if(s_vizinha.funcao_objetivo > s.funcao_objetivo) {
+                memcpy(&s, &s_vizinha, sizeof(s_vizinha));
+                hf = clock();
+                tempo_melhor = ((double)(hf - hi))/CLOCKS_PER_SEC;
+                #ifdef DBG
+                    printf("FO: %d\tTempo: %.2f\n", s.funcao_objetivo, tempo_melhor);
+                #endif
+                
+                v = 1;
+            } else
+                v++;
+        }
+        hf = clock();
+        tempo_total = ((double)(hf - hi))/CLOCKS_PER_SEC;
+    }
+}
+
+void gerarVizinha(Solucao &s, int qtd) {
+
+}
+
+void heuBLPM(Solucao &s) {
+
+}
+
 /*
  *  Lê os dados de entrada e armazena no vetor de Posições Candidatas,
  *  cada posição do vetor é um struct Campo, que armazena o id da posição,
@@ -215,9 +270,8 @@ void solucaoInicialGulosa(Solucao &s) {
 int main(){
 
     Solucao sol;
+    double tempo_limite = 5, tempo_melhor, tempo_total;
     lerArquivo("arquivos/i25.txt");
-    //lerSolucaoDeArquivo(sol, "arq.txt");
-    //testarDados(sol, "solHeuConGul");
 
     int opcao;
     string arq;
