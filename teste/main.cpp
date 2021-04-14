@@ -58,7 +58,7 @@ void gerarVizinha(Solucao &s, int qtd) {
 }
 
 void heuBLPM(Solucao &s) {
-
+    
 }
 
 /*
@@ -173,6 +173,7 @@ void testarDados(Solucao &s, string arq) {
     if(f != stdout){
         fprintf(f, "Posição de cada ponto\n");
         for(int i = 0; i < numeroDePontos; i++)
+            //fprintf(f, "%d\n", s.posicaoDosPontos[i]);
             fprintf(f, "%d\n", (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas) == 0 ? numeroDePosicoesCandidatas : (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas));
     } else
         cout << "Solução completa gerada no arquivo solHeuConGul.txt\n" << endl;
@@ -282,6 +283,7 @@ int main(){
         cout << "2 - TESTAR HEURÍSTICA" << endl;
         cout << "3 - TESTAR FUNÇÃO OBJETIVO" << endl;
         cout << "4 - IMPRIMIR SOLUÇÃO" << endl;
+        cout << "5 - MELHORAR SOLUÇÃO" << endl;
         cout << "0 - SAIR" << endl;
 
         cout << "\nEscolha uma opção: ";
@@ -301,6 +303,9 @@ int main(){
             break;
         case 4:
             testarDados(sol, "");
+            break;
+        case 5:
+            heuBLPM(sol);
             break;
         case 0:
             break;
