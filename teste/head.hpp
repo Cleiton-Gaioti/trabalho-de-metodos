@@ -50,9 +50,9 @@ void testarHeuristicaConstrutivaGulosa(Solucao &s);
 
 void solucaoInicialGulosa(Solucao &s);
 
-/*
 int gerarNumero(int lim_inf, int lim_sup);
 
+/*
 void heuConAle(Solucao &s);
 
 void testarHeuristicaConstrutivaAleatoria(Solucao &s);

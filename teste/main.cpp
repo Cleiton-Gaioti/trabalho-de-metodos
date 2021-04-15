@@ -53,12 +53,69 @@ void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo
     }
 }
 
-void gerarVizinha(Solucao &s, int qtd) {
+int converter(int num) {
+    return (num % numeroDePosicoesCandidatas == 0) ? numeroDePosicoesCandidatas : num % numeroDePosicoesCandidatas;
+}
 
+void gerarVizinha(Solucao &s, int qtd) {
+    int ponto1, ponto2, ponto3, ponto4, posicao, aux;
+
+    if(qtd == 1) {
+        ponto1 = gerarNumero(0, numeroDePontos - 1);
+
+        do {
+            posicao = gerarNumero(ponto1 * numeroDePosicoesCandidatas, (ponto1 + 1) * numeroDePosicoesCandidatas);
+        } while(posicao == s.posicaoDosPontos[ponto1]);
+        
+        s.posicaoDosPontos[ponto1] = posicao;
+
+    } else if(qtd == 2) {
+            ponto1 = gerarNumero(0, numeroDePontos - 1);
+
+        do {
+            ponto2 = gerarNumero(0, numeroDePontos - 1);
+        } while(converter(s.posicaoDosPontos[ponto1]) == converter(s.posicaoDosPontos[ponto2]));
+        
+        aux = converter(s.posicaoDosPontos[ponto1]);
+        s.posicaoDosPontos[ponto1] = ponto1 * numeroDePosicoesCandidatas + (s.posicaoDosPontos[ponto2]);
+        s.posicaoDosPontos[ponto2] = ponto2 * numeroDePosicoesCandidatas + aux;
+
+    } else if(qtd == 3) {
+
+    } else {
+
+    }
+    calcularFO(s);
 }
 
 void heuBLPM(Solucao &s) {
-    
+    int foOriginal, novaPosicao, posicaoOriginal, melhorFO = s.funcao_objetivo;
+
+    INICIO: ;
+    foOriginal = s.funcao_objetivo;
+
+    for (int i = 0; i < numeroDePontos; i++) {
+        posicaoOriginal = s.posicaoDosPontos[i];
+        for (int j = 1; j <= numeroDePosicoesCandidatas; j++) {
+            novaPosicao = i*numeroDePosicoesCandidatas + j;
+
+            if(novaPosicao != posicaoOriginal) {
+                s.posicaoDosPontos[i] = novaPosicao;
+                calcularFO(s);
+                
+                if (s.funcao_objetivo > melhorFO) {
+                    melhorFO = s.funcao_objetivo;
+                    goto INICIO;
+                } else {
+                    s.posicaoDosPontos[i] = posicaoOriginal;
+                    s.funcao_objetivo = foOriginal;
+                }
+            }
+        }
+        
+    }
+    calcularFO(s);
+    calcularConflitos(s);
 }
 
 /*
@@ -261,6 +318,9 @@ void solucaoInicialGulosa(Solucao &s) {
 
 }
 
+int gerarNumero(int lim_inf, int lim_sup){
+    return(lim_inf + rand() % (lim_sup - lim_inf + 1));
+}
 
 /*
  *  Criar uma função a parte para calcular o número de conflitos
@@ -271,8 +331,9 @@ void solucaoInicialGulosa(Solucao &s) {
 int main(){
 
     Solucao sol;
+    srand(time(NULL));
     double tempo_limite = 5, tempo_melhor, tempo_total;
-    lerArquivo("arquivos/i25.txt");
+    lerArquivo("arquivos/i500.txt");
 
     int opcao;
     string arq;
@@ -284,6 +345,7 @@ int main(){
         cout << "3 - TESTAR FUNÇÃO OBJETIVO" << endl;
         cout << "4 - IMPRIMIR SOLUÇÃO" << endl;
         cout << "5 - MELHORAR SOLUÇÃO" << endl;
+        cout << "6 - VNS" << endl;
         cout << "0 - SAIR" << endl;
 
         cout << "\nEscolha uma opção: ";
@@ -307,6 +369,9 @@ int main(){
         case 5:
             heuBLPM(sol);
             break;
+        case 6:
+            vns(tempo_limite, sol, tempo_melhor, tempo_total);
+            break;
         case 0:
             break;
         default:
@@ -319,10 +384,6 @@ int main(){
 }
 
 /*
-int gerarNumero(int lim_inf, int lim_sup){
-    return(lim_inf + rand() % (lim_sup-lim_inf+1));
-}
-
 void heuConAle(Solucao &s) {
     for(int j = 0; j < numeroDePontos; j++) {
         s.posicaoDosPontos[j] = gerarNumero(j*numeroDePosicoesCandidatas + 1, (j+1)*numeroDePosicoesCandidatas);
