@@ -331,9 +331,11 @@ int gerarNumero(int lim_inf, int lim_sup){
 int main(){
 
     Solucao sol;
+    clock_t h;
+    double tempo;
     srand(time(NULL));
     double tempo_limite = 5, tempo_melhor, tempo_total;
-    lerArquivo("arquivos/i500.txt");
+    lerArquivo("arquivos/i1000.txt");
 
     int opcao;
     string arq;
@@ -367,7 +369,11 @@ int main(){
             testarDados(sol, "");
             break;
         case 5:
+            h = clock();
             heuBLPM(sol);
+            h = clock() - h;
+            tempo = (double) h/CLOCKS_PER_SEC;
+            printf("Tempo de execução Primeira Melhora: %.5f\n", tempo);
             break;
         case 6:
             vns(tempo_limite, sol, tempo_melhor, tempo_total);
