@@ -26,9 +26,13 @@ typedef struct solucao {
 
 void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo_total);
 
+int converter(int num);
+
 void gerarVizinha(Solucao &s, int qtd);
 
-void heuBLPM(Solucao &s);
+void heuBLPM1(Solucao &s);
+
+void heuBLPM2(Solucao &s);
 
 void lerArquivo(std::string arq);
 
