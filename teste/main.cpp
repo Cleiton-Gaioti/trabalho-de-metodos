@@ -4,7 +4,7 @@
 #include <time.h>
 #include "head.hpp"
 
-//#define DBG
+#define DBG
 
 using namespace std;
 
@@ -20,7 +20,7 @@ int main() {
     clock_t h;
     double tempo;
     srand(time(NULL));
-    double tempo_limite = 5, tempo_melhor, tempo_total;
+    double tempo_limite = 1, tempo_melhor, tempo_total;
     lerArquivo("arquivos/i1000.txt");
 
     int opcao;
@@ -65,6 +65,7 @@ int main() {
             vns(tempo_limite, sol, tempo_melhor, tempo_total);
             h = clock() - h;
             printf("Tempo execução VNS: %.5f\n", (double) h/CLOCKS_PER_SEC);
+            testarDados(sol, "");
             break;
         case 0:
             break;
@@ -101,16 +102,16 @@ void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo
             if(v == 1) {
                 gerarVizinha(s_vizinha, 1);
             } else if(v == 2) {
-                gerarVizinha(s_vizinha, 2);
-            } else if(v == 3) {
                 gerarVizinha(s_vizinha, 3);
-            } else if(v == 4) {
-                gerarVizinha(s_vizinha, 4);
-            } else
+            } else if(v == 3) {
                 gerarVizinha(s_vizinha, 5);
+            } else if(v == 4) {
+                gerarVizinha(s_vizinha, 2);
+            } else
+                gerarVizinha(s_vizinha, 4);
 
-            //heuBLPM1(s_vizinha);
-            (rand()%2) == 0 ? heuBLPM1(s_vizinha) : heuBLPM2(s_vizinha);
+            heuBLPM1(s_vizinha);
+            //(rand()%2) == 0 ? heuBLPM1(s_vizinha) : heuBLPM2(s_vizinha);
 
             if(s_vizinha.funcao_objetivo > s.funcao_objetivo) {
                 memcpy(&s, &s_vizinha, sizeof(s_vizinha));
@@ -137,7 +138,7 @@ int converter(int num) {
 void gerarVizinha(Solucao &s, int qtd) {
     int ponto1, ponto2, ponto3, ponto4, posicao, aux;
 
-    if(qtd == 3) {
+    if(qtd == 1) {
         ponto1 = gerarNumero(0, numeroDePontos - 1);
 
         do {
@@ -146,7 +147,7 @@ void gerarVizinha(Solucao &s, int qtd) {
         
         s.posicaoDosPontos[ponto1] = posicao;
 
-    } else if(qtd == 1) {
+    } else if(qtd == 2) {
             ponto1 = gerarNumero(0, numeroDePontos - 1);
 
         do {
@@ -157,7 +158,7 @@ void gerarVizinha(Solucao &s, int qtd) {
         s.posicaoDosPontos[ponto1] = ponto1 * numeroDePosicoesCandidatas + (s.posicaoDosPontos[ponto2]);
         s.posicaoDosPontos[ponto2] = ponto2 * numeroDePosicoesCandidatas + aux;
 
-    } else if(qtd == 5) {
+    } else if(qtd == 3) {
 
         // Posições aleatórias para 2 pontos
 
@@ -175,7 +176,7 @@ void gerarVizinha(Solucao &s, int qtd) {
             s.posicaoDosPontos[ponto2] = gerarNumero(ponto2 * numeroDePosicoesCandidatas, (ponto2+1)*numeroDePosicoesCandidatas);
         } while(s.posicaoDosPontos[ponto1] == p1 && s.posicaoDosPontos[ponto2] == p2);
 
-    } else if(qtd == 2){
+    } else if(qtd == 4){
         //melhor posicao de 1 ponto
 
         int ponto = gerarNumero(0, numeroDePontos - 1);
@@ -493,7 +494,7 @@ void solucaoInicialGulosa(Solucao &s) {
     h = clock();
 
     heuConGul(s);
-    calcularFO(s);
+    calcularFO2(s);
 
     h = clock() - h;
 

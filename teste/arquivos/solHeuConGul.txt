@@ -1,7 +1,7 @@
 Numero de pontos 1000
 Numero de posicoes candidatas 4
 Numero de conflitos 252
-Valor da FO 575
+Valor da FO 585
 Posição de cada ponto
 4
 1
