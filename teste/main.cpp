@@ -24,7 +24,6 @@ int main() {
     lerArquivo("arquivos/i1000.txt");
 
     int opcao;
-    string arq;
 
     do {
         cout << endl;
@@ -55,7 +54,11 @@ int main() {
             testarDados(sol, "");
             break;
         case 5:
-            heuBLPM1(sol);
+            h = clock();
+            heuBLPM2(sol);
+            h = clock() - h;
+            printf("Tempo execução BLPM2: %.5f\n", (double) h/CLOCKS_PER_SEC);
+            testarDados(sol, "");
             break;
         case 6:
             h = clock();
@@ -81,7 +84,7 @@ void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo
     cout << "EXECUTANDO O VNS...\n" << endl;
     hi = clock();
     heuConGul(s);
-    calcularFO(s);
+    calcularFO2(s);
     hf = clock();
     tempo_melhor = ((double)(hf - hi))/CLOCKS_PER_SEC;
 
@@ -113,6 +116,7 @@ void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo
                 memcpy(&s, &s_vizinha, sizeof(s_vizinha));
                 hf = clock();
                 tempo_melhor = ((double)(hf - hi))/CLOCKS_PER_SEC;
+
                 #ifdef DBG
                     printf("FO: %d\tTempo: %.2f\n", s.funcao_objetivo, tempo_melhor);
                 #endif
@@ -133,7 +137,7 @@ int converter(int num) {
 void gerarVizinha(Solucao &s, int qtd) {
     int ponto1, ponto2, ponto3, ponto4, posicao, aux;
 
-    if(qtd == 1) {
+    if(qtd == 3) {
         ponto1 = gerarNumero(0, numeroDePontos - 1);
 
         do {
@@ -142,7 +146,7 @@ void gerarVizinha(Solucao &s, int qtd) {
         
         s.posicaoDosPontos[ponto1] = posicao;
 
-    } else if(qtd == 3) {
+    } else if(qtd == 1) {
             ponto1 = gerarNumero(0, numeroDePontos - 1);
 
         do {
@@ -177,10 +181,10 @@ void gerarVizinha(Solucao &s, int qtd) {
         int ponto = gerarNumero(0, numeroDePontos - 1);
         int melhorPosicao, melhorPeso = INT16_MAX;
 
-        for (int i = 1; i <= numeroDePosicoesCandidatas; i++) {
-            if(vetorDePesos[ponto + i] < melhorPeso) 
-                melhorPeso = vetorDePesos[ponto + i];
-                melhorPosicao = ponto + i;
+        for (int i = 0; i < numeroDePosicoesCandidatas; i++) {
+            if(vetorDePesos[ponto * numeroDePosicoesCandidatas + i] < melhorPeso) 
+                melhorPeso = vetorDePesos[ponto * numeroDePosicoesCandidatas + i];
+                melhorPosicao = ponto * numeroDePosicoesCandidatas + i;
         }
         
         s.posicaoDosPontos[ponto] = melhorPosicao;
@@ -190,29 +194,29 @@ void gerarVizinha(Solucao &s, int qtd) {
         int ponto = gerarNumero(0, numeroDePontos - 1);
         int piorPosicao, piorPeso = 0;
 
-        for (int i = 1; i <= numeroDePosicoesCandidatas; i++) {
-            if(vetorDePesos[ponto + i] > piorPeso) { 
-                piorPeso = vetorDePesos[ponto + i];
-                piorPosicao = ponto + i;
+        for (int i = 0; i < numeroDePosicoesCandidatas; i++) {
+            if(vetorDePesos[ponto * numeroDePosicoesCandidatas + i] > piorPeso) { 
+                piorPeso = vetorDePesos[ponto * numeroDePosicoesCandidatas + i];
+                piorPosicao = ponto * numeroDePosicoesCandidatas + i;
             }    
         }
         
         s.posicaoDosPontos[ponto] = piorPosicao;
     }
-    calcularFO(s);
+    calcularFO2(s);
 }
 
 void heuBLPM1(Solucao &s) {
     int aux, foOriginal, novaPosicao, posicaoOriginal, melhorFO = s.funcao_objetivo;
-
-    INICIO: ;
-    foOriginal = s.funcao_objetivo;
 
     int indice[numeroDePontos];
 
     for (int i = 0; i < numeroDePontos; i++) {
         indice[i] = i;
     }
+
+    INICIO: ;
+    foOriginal = s.funcao_objetivo;
  
     for (int k = 0; k < numeroDePontos; k++) {  
         int i = k + rand()%(numeroDePontos - k);
@@ -223,7 +227,7 @@ void heuBLPM1(Solucao &s) {
 
             if(novaPosicao != posicaoOriginal) {
                 s.posicaoDosPontos[i] = novaPosicao;
-                calcularFO(s);
+                calcularFO2(s);
                 
                 if (s.funcao_objetivo > melhorFO) {
                     melhorFO = s.funcao_objetivo;
@@ -240,7 +244,7 @@ void heuBLPM1(Solucao &s) {
         indice[i] = aux;
 
     }
-    calcularFO(s);
+    calcularFO2(s);
     calcularConflitos(s);
 }
 
@@ -258,7 +262,7 @@ void heuBLPM2(Solucao &s) {
 
             if(novaPosicao != posicaoOriginal) {
                 s.posicaoDosPontos[i] = novaPosicao;
-                calcularFO(s);
+                calcularFO2(s);
                 
                 if (s.funcao_objetivo > melhorFO) {
                     melhorFO = s.funcao_objetivo;
@@ -269,9 +273,8 @@ void heuBLPM2(Solucao &s) {
                 }
             }
         }
-
     }
-    calcularFO(s);
+    calcularFO2(s);
     calcularConflitos(s);
 }
 
@@ -341,6 +344,32 @@ void calcularFO(Solucao &s){
                         break;
                     }
                 }
+        }
+    }
+
+    int contador = 0;
+    for(int i = 0; i < numeroDePontos; i++) {
+        if (posicoesConflitantes[i] == -1) {
+            contador++;
+        }
+    }
+    s.funcao_objetivo = contador;
+}
+
+void calcularFO2(Solucao &s){
+    
+    memset(&posicoesConflitantes, -1, sizeof(posicoesConflitantes));
+
+    for(int i = 0; i < numeroDePontos; i++) {
+        if (posicoesConflitantes[i] != 0) {
+            for(int j = i + 1; j < numeroDePontos; j++) {
+                    for(int k = 0; k < posicoesCandidatas[s.posicaoDosPontos[i] - 1].quantidadeDeConflitos; k++) {
+                        if(s.posicaoDosPontos[j] == posicoesCandidatas[s.posicaoDosPontos[i] - 1].conflitos[k]) {
+                            posicoesConflitantes[i] = posicoesConflitantes[j] = 0;
+                            break;
+                        }
+                    }
+            }
         }
     }
 

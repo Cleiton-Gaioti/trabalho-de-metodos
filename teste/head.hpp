@@ -40,6 +40,8 @@ void heuConGul(Solucao &s);
 
 void calcularFO(Solucao &s);
 
+void calcularFO2(Solucao &s);
+
 void calcularConflitos(Solucao &s);
 
 void clonarSolucao(Solucao &s1, Solucao &s2);
