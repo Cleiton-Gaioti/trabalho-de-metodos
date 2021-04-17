@@ -19,8 +19,9 @@ int main() {
     Solucao sol;
     clock_t h;
     double tempo;
-    //srand(time(NULL));
-    double tempo_limite = 5, tempo_melhor, tempo_total;
+    srand(time(NULL));
+    const double tempo_limite = 5;
+    double tempo_melhor, tempo_total;
     lerArquivo("arquivos/i1000.txt");
 
     int opcao;
@@ -97,21 +98,21 @@ void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo
 
     while (tempo_total < tempo_max) {
         v = 1;
-        while (v <= 5) {
+        while (v <= 3) {
             memcpy(&s_vizinha, &s, sizeof(s));
             if(v == 1) {
                 gerarVizinha(s_vizinha, 1);
             } else if(v == 2) {
-                gerarVizinha(s_vizinha, 3);
-            } else if(v == 3) {
-                gerarVizinha(s_vizinha, 5);
-            } else if(v == 4) {
                 gerarVizinha(s_vizinha, 2);
-            } else
+            } else if(v == 3) {
+                gerarVizinha(s_vizinha, 3);
+            } else if(v == 4) {
                 gerarVizinha(s_vizinha, 4);
+            } else
+                gerarVizinha(s_vizinha, 5);
 
-            heuBLPM1(s_vizinha);
-            //(rand()%2) == 0 ? heuBLPM1(s_vizinha) : heuBLPM2(s_vizinha);
+            //heuBLPM2(s_vizinha);
+            (rand()%2) == 0 ? heuBLPM1(s_vizinha) : heuBLPM2(s_vizinha);
 
             if(s_vizinha.funcao_objetivo > s.funcao_objetivo) {
                 memcpy(&s, &s_vizinha, sizeof(s_vizinha));
