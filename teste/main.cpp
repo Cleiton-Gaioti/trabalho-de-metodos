@@ -19,7 +19,7 @@ int main() {
     Solucao sol;
     clock_t h;
     double tempo;
-    srand(time(NULL));
+    //srand(time(NULL));
     double tempo_limite = 5, tempo_melhor, tempo_total;
     lerArquivo("arquivos/i1000.txt");
 
@@ -65,6 +65,7 @@ int main() {
             vns(tempo_limite, sol, tempo_melhor, tempo_total);
             h = clock() - h;
             printf("Tempo execução VNS: %.5f\n", (double) h/CLOCKS_PER_SEC);
+            testarDados(sol, "");
             break;
         case 0:
             break;
