@@ -111,8 +111,8 @@ void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo
             } else
                 gerarVizinha(s_vizinha, 5);
 
-            //heuBLPM2(s_vizinha);
-            (rand()%2) == 0 ? heuBLPM1(s_vizinha) : heuBLPM2(s_vizinha);
+            heuBLPM2(s_vizinha);
+            //(rand()%2) == 0 ? heuBLPM1(s_vizinha) : heuBLPM2(s_vizinha);
 
             if(s_vizinha.funcao_objetivo > s.funcao_objetivo) {
                 memcpy(&s, &s_vizinha, sizeof(s_vizinha));
@@ -459,7 +459,7 @@ void testarF0(Solucao &s){
 
     h = clock();
     for (int i = 0; i < 1000; i++) {
-        calcularFO(s);
+        calcularFO2(s);
     }
     h = clock() - h;
 
