@@ -4,7 +4,7 @@
 #include <time.h>
 #include "head.hpp"
 
-//#define DBG
+#define DBG
 
 using namespace std;
 
@@ -77,6 +77,39 @@ int main() {
     return 0;
 }
 
+void heuBLPM3(Solucao &s) {
+    int aux, foOriginal, novaPosicao, posicaoOriginal, melhorFO = s.funcao_objetivo;
+
+    INICIO: ;
+    foOriginal = s.funcao_objetivo;
+ 
+    for (int k = 0; k < (int)(numeroDePontos * 0.2); k++) {  
+        int i = rand()%numeroDePontos;
+        posicaoOriginal = s.posicaoDosPontos[i];
+        //for (int j = 1; j <= numeroDePosicoesCandidatas; j++) {
+        
+        do {
+            novaPosicao = i * numeroDePosicoesCandidatas + gerarNumero(1, numeroDePosicoesCandidatas);
+        } while(novaPosicao == posicaoOriginal);
+
+        if(novaPosicao != posicaoOriginal) {
+            s.posicaoDosPontos[i] = novaPosicao;
+            calcularFO2(s);
+                
+            if (s.funcao_objetivo > melhorFO) {
+                melhorFO = s.funcao_objetivo;
+                goto INICIO;
+            } else {
+                s.posicaoDosPontos[i] = posicaoOriginal;
+                s.funcao_objetivo = foOriginal;
+            }
+        }
+        //}
+    }
+    calcularFO2(s);
+    calcularConflitos(s);
+}
+
 void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo_total) {
     int v;
     clock_t hi,hf;
@@ -96,7 +129,7 @@ void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo
 
     while (tempo_total < tempo_max) {
         v = 1;
-        while (v <= 5) {
+        while (v <= 3) {
             memcpy(&s_vizinha, &s, sizeof(s));
             if(v == 1) {
                 gerarVizinha(s_vizinha, 1);
@@ -109,8 +142,14 @@ void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo
             } else
                 gerarVizinha(s_vizinha, 5);
 
-            //heuBLPM1(s_vizinha);
-            (rand()%2) == 0 ? heuBLPM1(s_vizinha) : heuBLPM2(s_vizinha);
+            int opcao = rand() % 3;
+            
+            if(opcao == 0)
+                heuBLPM1(s_vizinha); 
+            else if(opcao == 1)
+                heuBLPM2(s_vizinha);
+            else 
+                heuBLPM3(s_vizinha);
 
             if(s_vizinha.funcao_objetivo > s.funcao_objetivo) {
                 memcpy(&s, &s_vizinha, sizeof(s_vizinha));
