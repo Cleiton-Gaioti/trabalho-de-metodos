@@ -60,6 +60,8 @@ void testarHeuristicaConstrutivaGulosa(Solucao &s);
 
 void testarVNS(Solucao &s);
 
+void testarHeuBLPMs(Solucao &s, int funcao);
+
 void solucaoInicialGulosa(Solucao &s);
 
 int gerarNumero(int lim_inf, int lim_sup);

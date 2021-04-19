@@ -18,7 +18,7 @@ int main() {
 
     Solucao sol;
     srand(time(NULL));
-    lerArquivo("arquivos/i25.txt");
+    lerArquivo("arquivos/i1000.txt");
 
     int opcao;
 
@@ -28,7 +28,8 @@ int main() {
         cout << "2 - TESTAR HEURÍSTICA" << endl;
         cout << "3 - TESTAR FUNÇÃO OBJETIVO" << endl;
         cout << "4 - IMPRIMIR SOLUÇÃO" << endl;
-        cout << "5 - VNS" << endl;
+        cout << "5 - TESTAR VNS" << endl;
+        cout << "6 - TESTAR PRIMEIRA MELHORA" << endl;
         cout << "0 - SAIR" << endl;
 
         cout << "\nEscolha uma opção: ";
@@ -51,7 +52,11 @@ int main() {
             break;
         case 5:
             testarVNS(sol);
+            testarDados(sol, "");
             testarDados(sol, "arquivos/solHeuConGul.txt");
+            break;
+        case 6:
+            testarHeuBLPMs(sol, 3);
             break;
         case 0:
             break;
@@ -66,7 +71,7 @@ int main() {
 
 void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo_total) {
     int v;
-    clock_t hi,hf;
+    clock_t hi, hf;
     Solucao s_vizinha;
     cout << "EXECUTANDO O VNS...\n" << endl;
     hi = clock();
@@ -85,6 +90,7 @@ void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo
         v = 1;
         while (v <= 3) {
             memcpy(&s_vizinha, &s, sizeof(s));
+
             if(v == 1) {
                 gerarVizinha(s_vizinha, 1);
             } else if(v == 2) {
@@ -97,7 +103,7 @@ void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo
                 gerarVizinha(s_vizinha, 5);
 
             int opcao = rand() % 3;
-            
+
             if(opcao == 0)
                 heuBLPM1(s_vizinha); 
             else if(opcao == 1)
@@ -128,13 +134,13 @@ int converter(int num) {
 }
 
 void gerarVizinha(Solucao &s, int qtd) {
-    int ponto1, ponto2, ponto3, ponto4, posicao, aux;
+    int ponto1, ponto2, posicao, aux;
 
     if(qtd == 1) {
         ponto1 = gerarNumero(0, numeroDePontos - 1);
 
         do {
-            posicao = gerarNumero(ponto1 * numeroDePosicoesCandidatas, (ponto1 + 1) * numeroDePosicoesCandidatas);
+            posicao = gerarNumero(ponto1 * numeroDePosicoesCandidatas + 1, (ponto1 + 1) * numeroDePosicoesCandidatas);
         } while(posicao == s.posicaoDosPontos[ponto1]);
         
         s.posicaoDosPontos[ponto1] = posicao;
@@ -147,7 +153,7 @@ void gerarVizinha(Solucao &s, int qtd) {
         } while(converter(s.posicaoDosPontos[ponto1]) == converter(s.posicaoDosPontos[ponto2]));
         
         aux = converter(s.posicaoDosPontos[ponto1]);
-        s.posicaoDosPontos[ponto1] = ponto1 * numeroDePosicoesCandidatas + (s.posicaoDosPontos[ponto2]);
+        s.posicaoDosPontos[ponto1] = ponto1 * numeroDePosicoesCandidatas + converter(s.posicaoDosPontos[ponto2]);
         s.posicaoDosPontos[ponto2] = ponto2 * numeroDePosicoesCandidatas + aux;
 
     } else if(qtd == 3) {
@@ -164,8 +170,8 @@ void gerarVizinha(Solucao &s, int qtd) {
         int p2 = s.posicaoDosPontos[ponto2];
 
         do {
-            s.posicaoDosPontos[ponto1] = gerarNumero(ponto1 * numeroDePosicoesCandidatas, (ponto1+1)*numeroDePosicoesCandidatas);
-            s.posicaoDosPontos[ponto2] = gerarNumero(ponto2 * numeroDePosicoesCandidatas, (ponto2+1)*numeroDePosicoesCandidatas);
+            s.posicaoDosPontos[ponto1] = gerarNumero(ponto1 * numeroDePosicoesCandidatas + 1, (ponto1+1)*numeroDePosicoesCandidatas);
+            s.posicaoDosPontos[ponto2] = gerarNumero(ponto2 * numeroDePosicoesCandidatas + 1, (ponto2+1)*numeroDePosicoesCandidatas);
         } while(s.posicaoDosPontos[ponto1] == p1 && s.posicaoDosPontos[ponto2] == p2);
 
     } else if(qtd == 4){
@@ -277,10 +283,9 @@ void heuBLPM3(Solucao &s) {
     INICIO: ;
     foOriginal = s.funcao_objetivo;
  
-    for (int k = 0; k < (int)(numeroDePontos * 0.2); k++) {  
+    for (int k = 0; k < (int)(numeroDePontos * 0.5); k++) {  
         int i = rand()%numeroDePontos;
         posicaoOriginal = s.posicaoDosPontos[i];
-        //for (int j = 1; j <= numeroDePosicoesCandidatas; j++) {
         
         do {
             novaPosicao = i * numeroDePosicoesCandidatas + gerarNumero(1, numeroDePosicoesCandidatas);
@@ -298,7 +303,6 @@ void heuBLPM3(Solucao &s) {
                 s.funcao_objetivo = foOriginal;
             }
         }
-        //}
     }
     calcularFO2(s);
     calcularConflitos(s);
@@ -514,6 +518,28 @@ void testarVNS(Solucao &s) {
     vns(tempo_limite, s, tempo_melhor, tempo_total);
     h = clock() - h;
     printf("Tempo execução VNS: %.5f\n", (double) h/CLOCKS_PER_SEC);
+}
+
+void testarHeuBLPMs(Solucao &s, int funcao) {
+
+    solucaoInicialGulosa(s);
+    calcularConflitos(s);
+    int melhorFO = s.funcao_objetivo;
+
+    for(int i = 0; i < 100000; i++) {
+        if(funcao == 1)
+            heuBLPM1(s);
+        else if(funcao == 2)
+            heuBLPM2(s);
+        else
+            heuBLPM3(s);
+
+        if (s.funcao_objetivo > melhorFO) {
+            melhorFO = s.funcao_objetivo;
+        }
+    }
+
+    cout << "Melhor FO: " << melhorFO << endl;
 }
 
 /*
