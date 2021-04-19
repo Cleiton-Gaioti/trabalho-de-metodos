@@ -17,12 +17,8 @@ using namespace std;
 int main() {
 
     Solucao sol;
-    clock_t h;
-    double tempo;
     srand(time(NULL));
-    const double tempo_limite = 5;
-    double tempo_melhor, tempo_total;
-    lerArquivo("arquivos/i1000.txt");
+    lerArquivo("arquivos/i25.txt");
 
     int opcao;
 
@@ -32,8 +28,7 @@ int main() {
         cout << "2 - TESTAR HEURÍSTICA" << endl;
         cout << "3 - TESTAR FUNÇÃO OBJETIVO" << endl;
         cout << "4 - IMPRIMIR SOLUÇÃO" << endl;
-        cout << "5 - MELHORAR SOLUÇÃO" << endl;
-        cout << "6 - VNS" << endl;
+        cout << "5 - VNS" << endl;
         cout << "0 - SAIR" << endl;
 
         cout << "\nEscolha uma opção: ";
@@ -55,18 +50,8 @@ int main() {
             testarDados(sol, "");
             break;
         case 5:
-            h = clock();
-            heuBLPM2(sol);
-            h = clock() - h;
-            printf("Tempo execução BLPM2: %.5f\n", (double) h/CLOCKS_PER_SEC);
-            testarDados(sol, "");
-            break;
-        case 6:
-            h = clock();
-            vns(tempo_limite, sol, tempo_melhor, tempo_total);
-            h = clock() - h;
-            printf("Tempo execução VNS: %.5f\n", (double) h/CLOCKS_PER_SEC);
-            testarDados(sol, "");
+            testarVNS(sol);
+            testarDados(sol, "arquivos/solHeuConGul.txt");
             break;
         case 0:
             break;
@@ -77,39 +62,6 @@ int main() {
     }  while(opcao != 0);
 
     return 0;
-}
-
-void heuBLPM3(Solucao &s) {
-    int aux, foOriginal, novaPosicao, posicaoOriginal, melhorFO = s.funcao_objetivo;
-
-    INICIO: ;
-    foOriginal = s.funcao_objetivo;
- 
-    for (int k = 0; k < (int)(numeroDePontos * 0.2); k++) {  
-        int i = rand()%numeroDePontos;
-        posicaoOriginal = s.posicaoDosPontos[i];
-        //for (int j = 1; j <= numeroDePosicoesCandidatas; j++) {
-        
-        do {
-            novaPosicao = i * numeroDePosicoesCandidatas + gerarNumero(1, numeroDePosicoesCandidatas);
-        } while(novaPosicao == posicaoOriginal);
-
-        if(novaPosicao != posicaoOriginal) {
-            s.posicaoDosPontos[i] = novaPosicao;
-            calcularFO2(s);
-                
-            if (s.funcao_objetivo > melhorFO) {
-                melhorFO = s.funcao_objetivo;
-                goto INICIO;
-            } else {
-                s.posicaoDosPontos[i] = posicaoOriginal;
-                s.funcao_objetivo = foOriginal;
-            }
-        }
-        //}
-    }
-    calcularFO2(s);
-    calcularConflitos(s);
 }
 
 void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo_total) {
@@ -150,7 +102,7 @@ void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo
                 heuBLPM1(s_vizinha); 
             else if(opcao == 1)
                 heuBLPM2(s_vizinha);
-            else 
+            else
                 heuBLPM3(s_vizinha);
 
             if(s_vizinha.funcao_objetivo > s.funcao_objetivo) {
@@ -314,6 +266,39 @@ void heuBLPM2(Solucao &s) {
                 }
             }
         }
+    }
+    calcularFO2(s);
+    calcularConflitos(s);
+}
+
+void heuBLPM3(Solucao &s) {
+    int aux, foOriginal, novaPosicao, posicaoOriginal, melhorFO = s.funcao_objetivo;
+
+    INICIO: ;
+    foOriginal = s.funcao_objetivo;
+ 
+    for (int k = 0; k < (int)(numeroDePontos * 0.2); k++) {  
+        int i = rand()%numeroDePontos;
+        posicaoOriginal = s.posicaoDosPontos[i];
+        //for (int j = 1; j <= numeroDePosicoesCandidatas; j++) {
+        
+        do {
+            novaPosicao = i * numeroDePosicoesCandidatas + gerarNumero(1, numeroDePosicoesCandidatas);
+        } while(novaPosicao == posicaoOriginal);
+
+        if(novaPosicao != posicaoOriginal) {
+            s.posicaoDosPontos[i] = novaPosicao;
+            calcularFO2(s);
+                
+            if (s.funcao_objetivo > melhorFO) {
+                melhorFO = s.funcao_objetivo;
+                goto INICIO;
+            } else {
+                s.posicaoDosPontos[i] = posicaoOriginal;
+                s.funcao_objetivo = foOriginal;
+            }
+        }
+        //}
     }
     calcularFO2(s);
     calcularConflitos(s);
@@ -522,6 +507,13 @@ void testarHeuristicaConstrutivaGulosa(Solucao &s) {
 
     tempo = (double) h/CLOCKS_PER_SEC;
     cout << "Tempo de execução: " << tempo << "s" << endl;
+}
+
+void testarVNS(Solucao &s) {
+    clock_t h = clock();
+    vns(tempo_limite, s, tempo_melhor, tempo_total);
+    h = clock() - h;
+    printf("Tempo execução VNS: %.5f\n", (double) h/CLOCKS_PER_SEC);
 }
 
 /*
