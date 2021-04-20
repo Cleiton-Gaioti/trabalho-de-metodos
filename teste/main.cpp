@@ -18,7 +18,7 @@ int main() {
 
     Solucao sol;
     srand(time(NULL));
-    lerArquivo("arquivos/i1000.txt");
+    lerArquivo("arquivos/i13206.txt");
 
     int opcao;
 
@@ -102,7 +102,7 @@ void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo
             } else
                 gerarVizinha(s_vizinha, 5);
 
-            int opcao = rand() % 3;
+            int opcao = 1 + rand() % 2;
 
             if(opcao == 0)
                 heuBLPM1(s_vizinha); 
@@ -283,7 +283,7 @@ void heuBLPM3(Solucao &s) {
     INICIO: ;
     foOriginal = s.funcao_objetivo;
  
-    for (int k = 0; k < (int)(numeroDePontos * 0.5); k++) {  
+    for (int k = 0; k < (int)(numeroDePontos * 0.3); k++) {  
         int i = rand()%numeroDePontos;
         posicaoOriginal = s.posicaoDosPontos[i];
         
