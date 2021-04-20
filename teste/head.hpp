@@ -5,6 +5,7 @@
 #define MAXIMO_POSICOES 8
 #define MAXIMO_CONFLITOS 50
 #define TAMANHO_MAXIMO 13206*8
+#define tempo_limite 3.0
 
 typedef struct campo {
     int id;
@@ -17,6 +18,7 @@ int numeroDePosicoesCandidatas;
 Campo posicoesCandidatas[TAMANHO_MAXIMO];
 int posicoesConflitantes[MAXIMO_PONTOS];
 double vetorDePesos[TAMANHO_MAXIMO];
+double tempo_melhor, tempo_total;
 
 typedef struct solucao {
     int posicaoDosPontos[MAXIMO_PONTOS];
@@ -42,6 +44,8 @@ void calcularFO(Solucao &s);
 
 void calcularFO2(Solucao &s);
 
+void heuBLPM3(Solucao &s);
+
 void calcularConflitos(Solucao &s);
 
 void clonarSolucao(Solucao &s1, Solucao &s2);
@@ -53,6 +57,10 @@ void lerSolucaoDeArquivo(Solucao &s, std::string path);
 void testarF0(Solucao &s);
 
 void testarHeuristicaConstrutivaGulosa(Solucao &s);
+
+void testarVNS(Solucao &s);
+
+void testarHeuBLPMs(Solucao &s, int funcao);
 
 void solucaoInicialGulosa(Solucao &s);
 
