@@ -4,7 +4,7 @@
 #include <time.h>
 #include "head.hpp"
 
-#define DBG
+//#define DBG
 
 using namespace std;
 
@@ -78,8 +78,13 @@ int main() {
 
         if(opcao != 0) {
             lerArquivo(instancia);
-            vns(tempo_limite, sol, tempo_melhor, tempo_total);
-            testarDados(sol, "");
+
+            for(int i = 0; i < 3; i++) {
+                vns(tempo_limite, sol, tempo_melhor, tempo_total);
+                cout << "Melhor Tempo: " << tempo_melhor << endl;
+                cout << "Tempo Total: " << tempo_total << endl;
+                testarDados(sol, "saida" + to_string(i+1) + ".txt");
+            }    
         }
 
     }  while(opcao != 0);
