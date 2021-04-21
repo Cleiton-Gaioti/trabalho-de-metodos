@@ -17,19 +17,20 @@ using namespace std;
 int main() {
 
     Solucao sol;
+    string instancia;
+    int opcao, seed;
     srand(time(NULL));
-    lerArquivo("arquivos/i13206.txt");
-
-    int opcao;
 
     do {
         cout << endl;
-        cout << "1 - SOLUÇÃO INICIAL" << endl;
-        cout << "2 - TESTAR HEURÍSTICA" << endl;
-        cout << "3 - TESTAR FUNÇÃO OBJETIVO" << endl;
-        cout << "4 - IMPRIMIR SOLUÇÃO" << endl;
-        cout << "5 - TESTAR VNS" << endl;
-        cout << "6 - TESTAR PRIMEIRA MELHORA" << endl;
+        cout << "1 - i25" << endl;
+        cout << "2 - i100" << endl;
+        cout << "3 - i250" << endl;
+        cout << "4 - i500" << endl;
+        cout << "5 - i750" << endl;
+        cout << "6 - i1000" << endl;
+        cout << "7 - i13206" << endl;
+        cout << "8 - i13206p8" << endl;
         cout << "0 - SAIR" << endl;
 
         cout << "\nEscolha uma opção: ";
@@ -37,31 +38,48 @@ int main() {
         cout << endl;
 
         switch (opcao) {
-        case 1:
-            solucaoInicialGulosa(sol);
-            testarDados(sol, "arquivos/solHeuConGul.txt");
-            break;
-        case 2:
-            testarHeuristicaConstrutivaGulosa(sol);
-            break;
-        case 3:
-            testarF0(sol);
-            break;
-        case 4:
+            case 1:
+                instancia = "arquivos/i25.txt";
+                tempo_limite = 60;
+                break;
+            case 2:
+                instancia = "arquivos/i100.txt";
+                tempo_limite = 60;
+                break;
+            case 3:
+                instancia = "arquivos/i250.txt";
+                tempo_limite = 60;
+                break;
+            case 4:
+                instancia = "arquivos/500.txt";
+                tempo_limite = 60;
+                break;
+            case 5:
+                instancia = "arquivos/i750.txt";
+                tempo_limite = 60;
+                break;
+            case 6:
+                instancia = "arquivos/i1000.txt";
+                tempo_limite = 120;
+                break;
+            case 7:
+                instancia = "arquivos/i13206.txt";
+                tempo_limite = 1800;
+                break;
+            case 8:
+                instancia = "arquivos/i13206p8.txt";
+                tempo_limite = 1800;
+                break;
+            case 0:
+                break;
+            default:
+                cout << "OPÇÃO INVÁLIDA!" << endl;
+        }
+
+        if(opcao != 0) {
+            lerArquivo(instancia);
+            vns(tempo_limite, sol, tempo_melhor, tempo_total);
             testarDados(sol, "");
-            break;
-        case 5:
-            testarVNS(sol);
-            testarDados(sol, "");
-            testarDados(sol, "arquivos/solHeuConGul.txt");
-            break;
-        case 6:
-            testarHeuBLPMs(sol, 3);
-            break;
-        case 0:
-            break;
-        default:
-            cout << "OPÇÃO INVÁLIDA!" << endl;
         }
 
     }  while(opcao != 0);
@@ -76,7 +94,7 @@ void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo
     cout << "EXECUTANDO O VNS...\n" << endl;
     hi = clock();
     heuConGul(s);
-    calcularFO2(s);
+    calcularFO(s);
     hf = clock();
     tempo_melhor = ((double)(hf - hi))/CLOCKS_PER_SEC;
 
@@ -88,7 +106,7 @@ void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo
 
     while (tempo_total < tempo_max) {
         v = 1;
-        while (v <= 3) {
+        while (v <= 5) {
             memcpy(&s_vizinha, &s, sizeof(s));
 
             if(v == 1) {
@@ -102,14 +120,14 @@ void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo
             } else
                 gerarVizinha(s_vizinha, 5);
 
-            int opcao = 1 + rand() % 2;
+            int opcao = rand() % 3;
 
             if(opcao == 0)
-                heuBLPM1(s_vizinha); 
+                heuBLPM1(s_vizinha, hi); 
             else if(opcao == 1)
-                heuBLPM2(s_vizinha);
+                heuBLPM2(s_vizinha, hi);
             else
-                heuBLPM3(s_vizinha);
+                heuBLPM3(s_vizinha, hi);
 
             if(s_vizinha.funcao_objetivo > s.funcao_objetivo) {
                 memcpy(&s, &s_vizinha, sizeof(s_vizinha));
@@ -202,11 +220,12 @@ void gerarVizinha(Solucao &s, int qtd) {
         
         s.posicaoDosPontos[ponto] = piorPosicao;
     }
-    calcularFO2(s);
+    calcularFO(s);
 }
 
-void heuBLPM1(Solucao &s) {
+void heuBLPM1(Solucao &s, clock_t hi) {
     int aux, foOriginal, novaPosicao, posicaoOriginal, melhorFO = s.funcao_objetivo;
+    clock_t hf;
 
     int indice[numeroDePontos];
 
@@ -215,19 +234,106 @@ void heuBLPM1(Solucao &s) {
     }
 
     INICIO: ;
-    foOriginal = s.funcao_objetivo;
- 
-    for (int k = 0; k < numeroDePontos; k++) {  
-        int i = k + rand()%(numeroDePontos - k);
 
-        posicaoOriginal = s.posicaoDosPontos[i];
-        for (int j = 1; j <= numeroDePosicoesCandidatas; j++) {
-            novaPosicao = i*numeroDePosicoesCandidatas + j;
+    hf = clock();
+
+    if((double)(hf - hi)/CLOCKS_PER_SEC < tempo_limite) {
+            
+        foOriginal = s.funcao_objetivo;
+    
+        for (int k = 0; k < numeroDePontos; k++) {  
+            int i = k + rand()%(numeroDePontos - k);
+
+            posicaoOriginal = s.posicaoDosPontos[i];
+            for (int j = 1; j <= numeroDePosicoesCandidatas; j++) {
+                novaPosicao = i*numeroDePosicoesCandidatas + j;
+
+                if(novaPosicao != posicaoOriginal) {
+                    s.posicaoDosPontos[i] = novaPosicao;
+                    calcularFO(s);
+                    
+                    if (s.funcao_objetivo > melhorFO) {
+                        melhorFO = s.funcao_objetivo;
+                        goto INICIO;
+                    } else {
+                        s.posicaoDosPontos[i] = posicaoOriginal;
+                        s.funcao_objetivo = foOriginal;
+                    }
+                }
+            }
+            
+            aux = indice[k];
+            indice[k] = indice[i];
+            indice[i] = aux;
+
+        }
+    }
+
+    calcularFO(s);
+    calcularConflitos(s);
+}
+
+void heuBLPM2(Solucao &s, clock_t hi) {
+    int aux, foOriginal, novaPosicao, posicaoOriginal, melhorFO = s.funcao_objetivo;
+    clock_t hf;
+
+    INICIO: ;
+
+    hf = clock();
+
+    if((double)(hf - hi)/CLOCKS_PER_SEC < tempo_limite) {
+    
+        foOriginal = s.funcao_objetivo;
+    
+        for (int k = 0; k < (int)(numeroDePontos * 0.2); k++) {  
+            int i = rand()%numeroDePontos;
+            posicaoOriginal = s.posicaoDosPontos[i];
+            for (int j = 1; j <= numeroDePosicoesCandidatas; j++) {
+                novaPosicao = i*numeroDePosicoesCandidatas + j;
+
+                if(novaPosicao != posicaoOriginal) {
+                    s.posicaoDosPontos[i] = novaPosicao;
+                    calcularFO(s);
+                    
+                    if (s.funcao_objetivo > melhorFO) {
+                        melhorFO = s.funcao_objetivo;
+                        goto INICIO;
+                    } else {
+                        s.posicaoDosPontos[i] = posicaoOriginal;
+                        s.funcao_objetivo = foOriginal;
+                    }
+                }
+            }
+        }
+    }
+    calcularFO(s);
+    calcularConflitos(s);
+}
+
+void heuBLPM3(Solucao &s, clock_t hi) {
+    int aux, foOriginal, novaPosicao, posicaoOriginal, melhorFO = s.funcao_objetivo;
+    clock_t hf;
+
+    INICIO: ;
+
+    hf = clock();
+
+    if((double)(hf - hi)/CLOCKS_PER_SEC < tempo_limite) {
+
+        foOriginal = s.funcao_objetivo;
+    
+        for (int k = 0; k < (int)(numeroDePontos * 0.3); k++) {  
+            int i = rand()%numeroDePontos;
+            posicaoOriginal = s.posicaoDosPontos[i];
+            
+            do {
+                novaPosicao = i * numeroDePosicoesCandidatas + gerarNumero(1, numeroDePosicoesCandidatas);
+            } while(novaPosicao == posicaoOriginal);
 
             if(novaPosicao != posicaoOriginal) {
                 s.posicaoDosPontos[i] = novaPosicao;
-                calcularFO2(s);
-                
+                calcularFO(s);
+                    
                 if (s.funcao_objetivo > melhorFO) {
                     melhorFO = s.funcao_objetivo;
                     goto INICIO;
@@ -237,74 +343,8 @@ void heuBLPM1(Solucao &s) {
                 }
             }
         }
-        
-        aux = indice[k];
-        indice[k] = indice[i];
-        indice[i] = aux;
-
     }
-    calcularFO2(s);
-    calcularConflitos(s);
-}
-
-void heuBLPM2(Solucao &s) {
-    int aux, foOriginal, novaPosicao, posicaoOriginal, melhorFO = s.funcao_objetivo;
-
-    INICIO: ;
-    foOriginal = s.funcao_objetivo;
- 
-    for (int k = 0; k < (int)(numeroDePontos * 0.2); k++) {  
-        int i = rand()%numeroDePontos;
-        posicaoOriginal = s.posicaoDosPontos[i];
-        for (int j = 1; j <= numeroDePosicoesCandidatas; j++) {
-            novaPosicao = i*numeroDePosicoesCandidatas + j;
-
-            if(novaPosicao != posicaoOriginal) {
-                s.posicaoDosPontos[i] = novaPosicao;
-                calcularFO2(s);
-                
-                if (s.funcao_objetivo > melhorFO) {
-                    melhorFO = s.funcao_objetivo;
-                    goto INICIO;
-                } else {
-                    s.posicaoDosPontos[i] = posicaoOriginal;
-                    s.funcao_objetivo = foOriginal;
-                }
-            }
-        }
-    }
-    calcularFO2(s);
-    calcularConflitos(s);
-}
-
-void heuBLPM3(Solucao &s) {
-    int aux, foOriginal, novaPosicao, posicaoOriginal, melhorFO = s.funcao_objetivo;
-
-    INICIO: ;
-    foOriginal = s.funcao_objetivo;
- 
-    for (int k = 0; k < (int)(numeroDePontos * 0.3); k++) {  
-        int i = rand()%numeroDePontos;
-        posicaoOriginal = s.posicaoDosPontos[i];
-        
-        do {
-            novaPosicao = i * numeroDePosicoesCandidatas + gerarNumero(1, numeroDePosicoesCandidatas);
-        } while(novaPosicao == posicaoOriginal);
-
-        if(novaPosicao != posicaoOriginal) {
-            s.posicaoDosPontos[i] = novaPosicao;
-            calcularFO2(s);
-                
-            if (s.funcao_objetivo > melhorFO) {
-                melhorFO = s.funcao_objetivo;
-                goto INICIO;
-            } else {
-                s.posicaoDosPontos[i] = posicaoOriginal;
-                s.funcao_objetivo = foOriginal;
-            }
-        }
-    }
-    calcularFO2(s);
+    calcularFO(s);
     calcularConflitos(s);
 }
 
@@ -513,13 +553,6 @@ void testarHeuristicaConstrutivaGulosa(Solucao &s) {
     cout << "Tempo de execução: " << tempo << "s" << endl;
 }
 
-void testarVNS(Solucao &s) {
-    clock_t h = clock();
-    vns(tempo_limite, s, tempo_melhor, tempo_total);
-    h = clock() - h;
-    printf("Tempo execução VNS: %.5f\n", (double) h/CLOCKS_PER_SEC);
-}
-
 void testarHeuBLPMs(Solucao &s, int funcao) {
 
     solucaoInicialGulosa(s);
@@ -528,11 +561,11 @@ void testarHeuBLPMs(Solucao &s, int funcao) {
 
     for(int i = 0; i < 100000; i++) {
         if(funcao == 1)
-            heuBLPM1(s);
+            heuBLPM1(s, clock());
         else if(funcao == 2)
-            heuBLPM2(s);
+            heuBLPM2(s, clock());
         else
-            heuBLPM3(s);
+            heuBLPM3(s, clock());
 
         if (s.funcao_objetivo > melhorFO) {
             melhorFO = s.funcao_objetivo;
