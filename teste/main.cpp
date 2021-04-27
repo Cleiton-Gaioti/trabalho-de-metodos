@@ -8,95 +8,33 @@
 
 using namespace std;
 
-/*
- *  Criar uma função a parte para calcular o número de conflitos
- *  Ajeitar a leitura da solucao
- *  Ajeitar a função de testar dados
- */
-
 int main() {
 
     Solucao sol;
-    string instancia;
-    int opcao, seed;
-    srand(time(NULL));
+    int seeds[] = {0, 398647, 839458745};
+    int tempo[] = {60, 60, 60, 60, 60, 120, 1800, 1800};
+    double tempo_melhor, tempo_total; 
+    string instancia[] = {"i25", "i100", "i250", "i500", "i750","i1000", "i13206", "i13206p8"};
 
-    do {
-        cout << endl;
-        cout << "1 - i25" << endl;
-        cout << "2 - i100" << endl;
-        cout << "3 - i250" << endl;
-        cout << "4 - i500" << endl;
-        cout << "5 - i750" << endl;
-        cout << "6 - i1000" << endl;
-        cout << "7 - i13206" << endl;
-        cout << "8 - i13206p8" << endl;
-        cout << "0 - SAIR" << endl;
+    for(int i = 0; i < 8; i++) {
+        tempo_limite = tempo[i];
+        lerArquivo("arquivos/" + instancia[i] + ".txt");
 
-        cout << "\nEscolha uma opção: ";
-        cin >> opcao;
-        cout << endl;
-
-        switch (opcao) {
-            case 1:
-                instancia = "arquivos/i25.txt";
-                tempo_limite = 60;
-                break;
-            case 2:
-                instancia = "arquivos/i100.txt";
-                tempo_limite = 60;
-                break;
-            case 3:
-                instancia = "arquivos/i250.txt";
-                tempo_limite = 60;
-                break;
-            case 4:
-                instancia = "arquivos/500.txt";
-                tempo_limite = 60;
-                break;
-            case 5:
-                instancia = "arquivos/i750.txt";
-                tempo_limite = 60;
-                break;
-            case 6:
-                instancia = "arquivos/i1000.txt";
-                tempo_limite = 120;
-                break;
-            case 7:
-                instancia = "arquivos/i13206.txt";
-                tempo_limite = 1800;
-                break;
-            case 8:
-                instancia = "arquivos/i13206p8.txt";
-                tempo_limite = 1800;
-                break;
-            case 0:
-                break;
-            default:
-                cout << "OPÇÃO INVÁLIDA!" << endl;
+        for(int j = 0; j < 3; j++) {
+            srand(seeds[j]);
+            vns(sol, tempo_melhor, tempo_total);
+            testarDadosComTempo(sol, "solucoes/" + instancia[i] + ".sol" + to_string(j+1), tempo_total, tempo_melhor);
         }
-
-        if(opcao != 0) {
-            lerArquivo(instancia);
-
-            for(int i = 0; i < 3; i++) {
-                vns(tempo_limite, sol, tempo_melhor, tempo_total);
-                cout << "Melhor Tempo: " << tempo_melhor << endl;
-                cout << "Tempo Total: " << tempo_total << endl;
-                testarDados(sol, "saida" + to_string(i+1) + ".txt");
-            }    
-        }
-
-    }  while(opcao != 0);
+    }
 
     return 0;
 }
 
-void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo_total) {
+void vns(Solucao &s, double &tempo_melhor, double &tempo_total) {
     int v;
     clock_t hi, hf;
     Solucao s_vizinha;
-    cout << "EXECUTANDO O VNS...\n" << endl;
+    //cout << "EXECUTANDO O VNS...\n" << endl;
     hi = clock();
     heuConGul(s);
     calcularFO(s);
@@ -109,7 +47,7 @@ void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo
 
     tempo_total = tempo_melhor;
 
-    while (tempo_total < tempo_max) {
+    while (tempo_total < tempo_limite) {
         v = 1;
         while (v <= 5) {
             memcpy(&s_vizinha, &s, sizeof(s));
@@ -495,6 +433,29 @@ void testarDados(Solucao &s, string arq) {
             fprintf(f, "%d\n", (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas) == 0 ? numeroDePosicoesCandidatas : (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas));
     } else
         cout << "Solução completa gerada no arquivo solHeuConGul.txt\n" << endl;
+
+    if(arq != "")
+        fclose(f);
+}
+
+void testarDadosComTempo(Solucao &s, string arq, double tempo_total, double tempo_melhor) {
+    FILE *f;
+    if(arq.empty()) 
+        f = stdout;
+    else 
+        f = fopen(arq.c_str(), "w");
+    fprintf(f, "Tempo de Execucao: %.5lf\n", tempo_total);
+    fprintf(f, "Tempo melhor solucao %.5lf\n", tempo_melhor);
+    fprintf(f, "Numero de pontos %d\n", numeroDePontos);
+    fprintf(f, "Numero de posicoes candidatas %d\n", numeroDePosicoesCandidatas);
+    fprintf(f, "Numero de conflitos %d\n", s.numeroDeConflitos);
+    fprintf(f, "Valor da FO %d\n", s.funcao_objetivo);
+
+    fprintf(f, "Posição de cada ponto\n");
+    for(int i = 0; i < numeroDePontos; i++)
+        fprintf(f, "%d\n", (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas) == 0 ? numeroDePosicoesCandidatas : (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas));
+            //fprintf(f, "%d\n", s.posicaoDosPontos[i]);
+   
 
     if(arq != "")
         fclose(f);

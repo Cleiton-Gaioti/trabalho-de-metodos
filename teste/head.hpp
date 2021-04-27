@@ -17,7 +17,7 @@ int numeroDePosicoesCandidatas;
 Campo posicoesCandidatas[TAMANHO_MAXIMO];
 int posicoesConflitantes[MAXIMO_PONTOS];
 double vetorDePesos[TAMANHO_MAXIMO];
-double tempo_melhor, tempo_total, tempo_limite = 3.0;
+int tempo_limite;
 
 typedef struct solucao {
     int posicaoDosPontos[MAXIMO_PONTOS];
@@ -25,7 +25,7 @@ typedef struct solucao {
     int numeroDeConflitos;
 }Solucao;
 
-void vns(const double tempo_max, Solucao &s, double &tempo_melhor, double &tempo_total);
+void vns(Solucao &s, double &tempo_melhor, double &tempo_total);
 
 int converter(int num);
 
@@ -50,6 +50,8 @@ void calcularConflitos(Solucao &s);
 void clonarSolucao(Solucao &s1, Solucao &s2);
 
 void testarDados(Solucao &s, std::string arq);
+
+void testarDadosComTempo(Solucao &s, std::string arq, double tempo_total, double tempo_melhor);
 
 void lerSolucaoDeArquivo(Solucao &s, std::string path);
 
