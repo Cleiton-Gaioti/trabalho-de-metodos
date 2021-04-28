@@ -178,13 +178,13 @@ void heuBLPM1(Solucao &s, clock_t hi) {
 
     INICIO: ;
 
-    hf = clock();
-
-    if((double)(hf - hi)/CLOCKS_PER_SEC < tempo_limite) {
-            
-        foOriginal = s.funcao_objetivo;
+    foOriginal = s.funcao_objetivo;
     
-        for (int k = 0; k < numeroDePontos; k++) {  
+    for (int k = 0; k < numeroDePontos; k++) { 
+         
+        hf = clock();
+
+        if((double)(hf - hi)/CLOCKS_PER_SEC < tempo_limite) {
             int i = k + rand()%(numeroDePontos - k);
 
             posicaoOriginal = s.posicaoDosPontos[i];
@@ -221,14 +221,14 @@ void heuBLPM2(Solucao &s, clock_t hi) {
     clock_t hf;
 
     INICIO: ;
-
-    hf = clock();
-
-    if((double)(hf - hi)/CLOCKS_PER_SEC < tempo_limite) {
     
-        foOriginal = s.funcao_objetivo;
+    foOriginal = s.funcao_objetivo;
     
-        for (int k = 0; k < (int)(numeroDePontos * 0.2); k++) {  
+    for (int k = 0; k < (int)(numeroDePontos * 0.2); k++) {  
+
+        hf = clock();
+
+        if((double)(hf - hi)/CLOCKS_PER_SEC < tempo_limite) {
             int i = rand()%numeroDePontos;
             posicaoOriginal = s.posicaoDosPontos[i];
             for (int j = 1; j <= numeroDePosicoesCandidatas; j++) {
@@ -259,13 +259,13 @@ void heuBLPM3(Solucao &s, clock_t hi) {
 
     INICIO: ;
 
-    hf = clock();
-
-    if((double)(hf - hi)/CLOCKS_PER_SEC < tempo_limite) {
-
-        foOriginal = s.funcao_objetivo;
+    foOriginal = s.funcao_objetivo;
     
-        for (int k = 0; k < (int)(numeroDePontos * 0.3); k++) {  
+    for (int k = 0; k < (int)(numeroDePontos * 0.3); k++) {  
+
+        hf = clock();
+
+        if((double)(hf - hi)/CLOCKS_PER_SEC < tempo_limite) {
             int i = rand()%numeroDePontos;
             posicaoOriginal = s.posicaoDosPontos[i];
             
