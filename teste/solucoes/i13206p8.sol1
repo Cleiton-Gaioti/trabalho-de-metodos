@@ -1,9 +1,9 @@
-Tempo de Execucao: 1849.18360
-Tempo melhor solucao 1806.75983
+Tempo de Execucao: 1849.28259
+Tempo melhor solucao 1807.48527
 Numero de pontos 13206
 Numero de posicoes candidatas 8
-Numero de conflitos 2259
-Valor da FO 9676
+Numero de conflitos 2257
+Valor da FO 9679
 Posição de cada ponto
 4
 2
@@ -2225,7 +2225,7 @@ Posição de cada ponto
 5
 4
 1
-4
+1
 3
 2
 6
@@ -5275,7 +5275,7 @@ Posição de cada ponto
 2
 3
 3
-2
+4
 7
 3
 1

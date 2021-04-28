@@ -16,7 +16,7 @@ int main() {
     double tempo_melhor, tempo_total; 
     string instancia[] = {"i25", "i100", "i250", "i500", "i750","i1000", "i13206", "i13206p8"};
 
-    for(int i = 0; i < 8; i++) {
+    for(int i = 0; i < 7; i++) {
         tempo_limite = tempo[i];
         lerArquivo("arquivos/" + instancia[i] + ".txt");
 
@@ -189,18 +189,23 @@ void heuBLPM1(Solucao &s, clock_t hi) {
 
             posicaoOriginal = s.posicaoDosPontos[i];
             for (int j = 1; j <= numeroDePosicoesCandidatas; j++) {
-                novaPosicao = i*numeroDePosicoesCandidatas + j;
 
-                if(novaPosicao != posicaoOriginal) {
-                    s.posicaoDosPontos[i] = novaPosicao;
-                    calcularFO(s);
-                    
-                    if (s.funcao_objetivo > melhorFO) {
-                        melhorFO = s.funcao_objetivo;
-                        goto INICIO;
-                    } else {
-                        s.posicaoDosPontos[i] = posicaoOriginal;
-                        s.funcao_objetivo = foOriginal;
+                hf = clock();
+
+                if((double)(hf - hi)/CLOCKS_PER_SEC < tempo_limite) {
+                    novaPosicao = i*numeroDePosicoesCandidatas + j;
+
+                    if(novaPosicao != posicaoOriginal) {
+                        s.posicaoDosPontos[i] = novaPosicao;
+                        calcularFO(s);
+                        
+                        if (s.funcao_objetivo > melhorFO) {
+                            melhorFO = s.funcao_objetivo;
+                            goto INICIO;
+                        } else {
+                            s.posicaoDosPontos[i] = posicaoOriginal;
+                            s.funcao_objetivo = foOriginal;
+                        }
                     }
                 }
             }
@@ -232,18 +237,23 @@ void heuBLPM2(Solucao &s, clock_t hi) {
             int i = rand()%numeroDePontos;
             posicaoOriginal = s.posicaoDosPontos[i];
             for (int j = 1; j <= numeroDePosicoesCandidatas; j++) {
-                novaPosicao = i*numeroDePosicoesCandidatas + j;
+                
+                hf = clock();
 
-                if(novaPosicao != posicaoOriginal) {
-                    s.posicaoDosPontos[i] = novaPosicao;
-                    calcularFO(s);
-                    
-                    if (s.funcao_objetivo > melhorFO) {
-                        melhorFO = s.funcao_objetivo;
-                        goto INICIO;
-                    } else {
-                        s.posicaoDosPontos[i] = posicaoOriginal;
-                        s.funcao_objetivo = foOriginal;
+                if((double)(hf - hi)/CLOCKS_PER_SEC < tempo_limite) {
+                    novaPosicao = i*numeroDePosicoesCandidatas + j;
+
+                    if(novaPosicao != posicaoOriginal) {
+                        s.posicaoDosPontos[i] = novaPosicao;
+                        calcularFO(s);
+                        
+                        if (s.funcao_objetivo > melhorFO) {
+                            melhorFO = s.funcao_objetivo;
+                            goto INICIO;
+                        } else {
+                            s.posicaoDosPontos[i] = posicaoOriginal;
+                            s.funcao_objetivo = foOriginal;
+                        }
                     }
                 }
             }
