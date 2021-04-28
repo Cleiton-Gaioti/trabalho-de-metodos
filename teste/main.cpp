@@ -8,25 +8,36 @@
 
 using namespace std;
 
-int main() {
+int main(int argc, char *argv[]) {
 
     Solucao sol;
-    int seeds[] = {0, 398647, 839458745};
-    int tempo[] = {60, 60, 60, 60, 60, 120, 1800, 1800};
     double tempo_melhor, tempo_total; 
-    string instancia[] = {"i25", "i100", "i250", "i500", "i750","i1000", "i13206", "i13206p8"};
+    
+    if (argc > 1) {
+        int seed = stoi(argv[1]);
+        string instancia = argv[2];
+        int tempo = stoi(argv[3]);
+        string saida = argv[4];
 
-    for(int i = 0; i < 8; i++) {
-        tempo_limite = tempo[i];
-        lerArquivo("arquivos/" + instancia[i] + ".txt");
+        lerArquivo(instancia);
+        vns(sol, tempo_melhor, tempo_total);
 
-        for(int j = 0; j < 3; j++) {
-            srand(seeds[j]);
-            vns(sol, tempo_melhor, tempo_total);
-            testarDadosComTempo(sol, "solucoes/" + instancia[i] + ".sol" + to_string(j+1), tempo_total, tempo_melhor);
+    } else {
+        int seeds[] = {0, 398647, 839458745};
+        int tempo[] = {60, 60, 60, 60, 60, 120, 1800, 1800};
+        string instancia[] = {"i25", "i100", "i250", "i500", "i750","i1000", "i13206", "i13206p8"};
+
+        for(int i = 0; i < 8; i++) {
+            tempo_limite = tempo[i];
+            lerArquivo("arquivos/" + instancia[i] + ".txt");
+
+            for(int j = 0; j < 3; j++) {
+                srand(seeds[j]);
+                vns(sol, tempo_melhor, tempo_total);
+                testarDadosComTempo(sol, "solucoes/" + instancia[i] + ".sol" + to_string(j+1), tempo_total, tempo_melhor);
+            }
         }
     }
-
     return 0;
 }
 
@@ -34,7 +45,9 @@ void vns(Solucao &s, double &tempo_melhor, double &tempo_total) {
     int v;
     clock_t hi, hf;
     Solucao s_vizinha;
-    //cout << "EXECUTANDO O VNS...\n" << endl;
+    
+    /* Calcula a solução inicial e captura o tempo dela. */
+
     hi = clock();
     heuConGul(s);
     calcularFO(s);
@@ -47,10 +60,14 @@ void vns(Solucao &s, double &tempo_melhor, double &tempo_total) {
 
     tempo_total = tempo_melhor;
 
+    /* Executa o código enquanto não ultrapassar o tempo máximo. */
+
     while (tempo_total < tempo_limite) {
         v = 1;
         while (v <= 5) {
             memcpy(&s_vizinha, &s, sizeof(s));
+
+            /* Cada mudança no valor de v altera a forma de gerar vizinhos. */
 
             if(v == 1) {
                 gerarVizinha(s_vizinha, 1);
@@ -65,12 +82,20 @@ void vns(Solucao &s, double &tempo_melhor, double &tempo_total) {
 
             int opcao = rand() % 3;
 
+            /* Escolhe uma busca local aleatóriamente. */
+
             if(opcao == 0)
                 heuBLPM1(s_vizinha, hi); 
             else if(opcao == 1)
                 heuBLPM2(s_vizinha, hi);
             else
                 heuBLPM3(s_vizinha, hi);
+
+            /* 
+             * Se a solução gerada for melhor que a anterior, o valor da FO é atualizado
+             * e a geração de vizinhos se mantém a mesma. Caso contrário, a geração de 
+             * vizinhos é alterada.
+             */
 
             if(s_vizinha.funcao_objetivo > s.funcao_objetivo) {
                 memcpy(&s, &s_vizinha, sizeof(s_vizinha));
@@ -90,12 +115,16 @@ void vns(Solucao &s, double &tempo_melhor, double &tempo_total) {
     }
 }
 
+/* Converte o ID para uma posição de um ponto */
+
 int converter(int num) {
     return (num % numeroDePosicoesCandidatas == 0) ? numeroDePosicoesCandidatas : num % numeroDePosicoesCandidatas;
 }
 
 void gerarVizinha(Solucao &s, int qtd) {
     int ponto1, ponto2, posicao, aux;
+
+    /* Escolhe um ponto aleatório e altera a sua posição */
 
     if(qtd == 1) {
         ponto1 = gerarNumero(0, numeroDePontos - 1);
@@ -105,6 +134,8 @@ void gerarVizinha(Solucao &s, int qtd) {
         } while(posicao == s.posicaoDosPontos[ponto1]);
         
         s.posicaoDosPontos[ponto1] = posicao;
+
+    /* Escolhe dois pontos aleatoriamente, ambos com posições diferentes e troca suas posições */
 
     } else if(qtd == 2) {
             ponto1 = gerarNumero(0, numeroDePontos - 1);
@@ -119,7 +150,7 @@ void gerarVizinha(Solucao &s, int qtd) {
 
     } else if(qtd == 3) {
 
-        // Posições aleatórias para 2 pontos
+        /* Gera posições aleatórias para 2 pontos aleatórios */
 
         ponto1 = gerarNumero(0, numeroDePontos - 1);
 
@@ -136,7 +167,8 @@ void gerarVizinha(Solucao &s, int qtd) {
         } while(s.posicaoDosPontos[ponto1] == p1 && s.posicaoDosPontos[ponto2] == p2);
 
     } else if(qtd == 4){
-        //melhor posicao de 1 ponto
+        
+        /* Escolhe a melhor posicao de 1 ponto aleatório  */
 
         int ponto = gerarNumero(0, numeroDePontos - 1);
         int melhorPosicao, melhorPeso = INT16_MAX;
@@ -149,7 +181,7 @@ void gerarVizinha(Solucao &s, int qtd) {
         
         s.posicaoDosPontos[ponto] = melhorPosicao;
     } else {
-        //pior posição de 1 ponto
+        /* Escolhe a pior posição de 1 ponto aleatório */
 
         int ponto = gerarNumero(0, numeroDePontos - 1);
         int piorPosicao, piorPeso = 0;
@@ -185,14 +217,25 @@ void heuBLPM1(Solucao &s, clock_t hi) {
         hf = clock();
 
         if((double)(hf - hi)/CLOCKS_PER_SEC < tempo_limite) {
+
+            /* Escolhe um ponto aleatório */
+
             int i = k + rand()%(numeroDePontos - k);
 
             posicaoOriginal = s.posicaoDosPontos[i];
+
             for (int j = 1; j <= numeroDePosicoesCandidatas; j++) {
 
                 hf = clock();
 
                 if((double)(hf - hi)/CLOCKS_PER_SEC < tempo_limite) {
+
+                    /* 
+                     * Para cada posição do ponto, difente da atual, é calculada a FO.
+                     * Se a solução gerada for melhor que a anterior, o valor da FO é 
+                     * atualizado e a execução volta ao INICIO.
+                     */
+
                     novaPosicao = i*numeroDePosicoesCandidatas + j;
 
                     if(novaPosicao != posicaoOriginal) {
@@ -229,18 +272,27 @@ void heuBLPM2(Solucao &s, clock_t hi) {
     
     foOriginal = s.funcao_objetivo;
     
-    for (int k = 0; k < (int)(numeroDePontos * 0.2); k++) {  
+    /* 
+     * Bem parecida com a anterior, com o diferencial de que essa BL escolhe aleatóriamente
+     * somente 20% da quantidade total de pontos. Esse método é mais rápido que o anterior,
+     * porém, o aumento do valo da FO é menor.
+     */
+
+    for (int k = 0; k < (int)(numeroDePontos * 0.2); k++) {
 
         hf = clock();
 
         if((double)(hf - hi)/CLOCKS_PER_SEC < tempo_limite) {
+
             int i = rand()%numeroDePontos;
             posicaoOriginal = s.posicaoDosPontos[i];
+
             for (int j = 1; j <= numeroDePosicoesCandidatas; j++) {
                 
                 hf = clock();
 
                 if((double)(hf - hi)/CLOCKS_PER_SEC < tempo_limite) {
+
                     novaPosicao = i*numeroDePosicoesCandidatas + j;
 
                     if(novaPosicao != posicaoOriginal) {
@@ -271,6 +323,12 @@ void heuBLPM3(Solucao &s, clock_t hi) {
 
     foOriginal = s.funcao_objetivo;
     
+    /* 
+     * Escolhe aleatóriamente 30% do total de pontos e escolhe uma posição aleatória 
+     * para esse ponto. Se melhorar, atualiza o valor da FO e volta ao INICIO. Caso 
+     * contrário, escolhe outro ponto e outra posição.
+     */
+
     for (int k = 0; k < (int)(numeroDePontos * 0.3); k++) {  
 
         hf = clock();
@@ -301,6 +359,37 @@ void heuBLPM3(Solucao &s, clock_t hi) {
     calcularConflitos(s);
 }
 
+/* Gera números aleatórios entre um intervalo recebido por parâmetro. */
+
+int gerarNumero(int lim_inf, int lim_sup){
+    return(lim_inf + rand() % (lim_sup - lim_inf + 1));
+}
+
+/* Escreve em arquivo a solução gerada incluindo o tempo de execução */
+
+void testarDadosComTempo(Solucao &s, string arq, double tempo_total, double tempo_melhor) {
+    FILE *f;
+    if(arq.empty()) 
+        f = stdout;
+    else 
+        f = fopen(arq.c_str(), "w");
+    fprintf(f, "Tempo de Execucao: %.5lf\n", tempo_total);
+    fprintf(f, "Tempo melhor solucao %.5lf\n", tempo_melhor);
+    fprintf(f, "Numero de pontos %d\n", numeroDePontos);
+    fprintf(f, "Numero de posicoes candidatas %d\n", numeroDePosicoesCandidatas);
+    fprintf(f, "Numero de conflitos %d\n", s.numeroDeConflitos);
+    fprintf(f, "Valor da FO %d\n", s.funcao_objetivo);
+
+    fprintf(f, "Posição de cada ponto\n");
+    for(int i = 0; i < numeroDePontos; i++)
+        fprintf(f, "%d\n", (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas) == 0 ? numeroDePosicoesCandidatas : (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas));
+            //fprintf(f, "%d\n", s.posicaoDosPontos[i]);
+   
+
+    if(arq != "")
+        fclose(f);
+}
+
 /*
  *  Lê os dados de entrada e armazena no vetor de Posições Candidatas,
  *  cada posição do vetor é um struct Campo, que armazena o id da posição,
@@ -319,7 +408,7 @@ void lerArquivo(string arq) {
         posicoesCandidatas[i].id = i+1;
         fscanf(f, "%d", &posicoesCandidatas[i].quantidadeDeConflitos);
         vetorDePesos[i] = (double)posicoesCandidatas[i].quantidadeDeConflitos/numeroDePontos;
-        //cout << vetorDePesos[i] << " ";
+
         for(int j = 0; j < posicoesCandidatas[i].quantidadeDeConflitos; j++) {
             fscanf(f, "%d", &posicoesCandidatas[i].conflitos[j]);
         }
@@ -379,32 +468,6 @@ void calcularFO(Solucao &s){
     s.funcao_objetivo = contador;
 }
 
-void calcularFO2(Solucao &s){
-    
-    memset(&posicoesConflitantes, -1, sizeof(posicoesConflitantes));
-
-    for(int i = 0; i < numeroDePontos; i++) {
-        if (posicoesConflitantes[i] != 0) {
-            for(int j = i + 1; j < numeroDePontos; j++) {
-                    for(int k = 0; k < posicoesCandidatas[s.posicaoDosPontos[i] - 1].quantidadeDeConflitos; k++) {
-                        if(s.posicaoDosPontos[j] == posicoesCandidatas[s.posicaoDosPontos[i] - 1].conflitos[k]) {
-                            posicoesConflitantes[i] = posicoesConflitantes[j] = 0;
-                            break;
-                        }
-                    }
-            }
-        }
-    }
-
-    int contador = 0;
-    for(int i = 0; i < numeroDePontos; i++) {
-        if (posicoesConflitantes[i] == -1) {
-            contador++;
-        }
-    }
-    s.funcao_objetivo = contador;
-}
-
 void calcularConflitos(Solucao &s) {
     int conflitos = 0;
 
@@ -448,29 +511,6 @@ void testarDados(Solucao &s, string arq) {
         fclose(f);
 }
 
-void testarDadosComTempo(Solucao &s, string arq, double tempo_total, double tempo_melhor) {
-    FILE *f;
-    if(arq.empty()) 
-        f = stdout;
-    else 
-        f = fopen(arq.c_str(), "w");
-    fprintf(f, "Tempo de Execucao: %.5lf\n", tempo_total);
-    fprintf(f, "Tempo melhor solucao %.5lf\n", tempo_melhor);
-    fprintf(f, "Numero de pontos %d\n", numeroDePontos);
-    fprintf(f, "Numero de posicoes candidatas %d\n", numeroDePosicoesCandidatas);
-    fprintf(f, "Numero de conflitos %d\n", s.numeroDeConflitos);
-    fprintf(f, "Valor da FO %d\n", s.funcao_objetivo);
-
-    fprintf(f, "Posição de cada ponto\n");
-    for(int i = 0; i < numeroDePontos; i++)
-        fprintf(f, "%d\n", (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas) == 0 ? numeroDePosicoesCandidatas : (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas));
-            //fprintf(f, "%d\n", s.posicaoDosPontos[i]);
-   
-
-    if(arq != "")
-        fclose(f);
-}
-
 void lerSolucaoDeArquivo(Solucao &s, string path) {
     try {
         FILE* f = fopen(path.c_str(), "r");
@@ -503,7 +543,7 @@ void testarF0(Solucao &s){
 
     h = clock();
     for (int i = 0; i < 1000; i++) {
-        calcularFO2(s);
+        calcularFO(s);
     }
     h = clock() - h;
 
@@ -561,7 +601,7 @@ void solucaoInicialGulosa(Solucao &s) {
     h = clock();
 
     heuConGul(s);
-    calcularFO2(s);
+    calcularFO(s);
 
     h = clock() - h;
 
@@ -570,10 +610,6 @@ void solucaoInicialGulosa(Solucao &s) {
     cout << "Valor da FO: " << s.funcao_objetivo << endl;
     calcularConflitos(s);
 
-}
-
-int gerarNumero(int lim_inf, int lim_sup){
-    return(lim_inf + rand() % (lim_sup - lim_inf + 1));
 }
 
 /*

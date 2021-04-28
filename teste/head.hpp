@@ -37,21 +37,21 @@ void heuBLPM2(Solucao &s, clock_t hi);
 
 void heuBLPM3(Solucao &s, clock_t hi);
 
+int gerarNumero(int lim_inf, int lim_sup);
+
+void testarDadosComTempo(Solucao &s, std::string arq, double tempo_total, double tempo_melhor);
+
 void lerArquivo(std::string arq);
 
 void heuConGul(Solucao &s);
 
 void calcularFO(Solucao &s);
 
-void calcularFO2(Solucao &s);
-
 void calcularConflitos(Solucao &s);
 
 void clonarSolucao(Solucao &s1, Solucao &s2);
 
 void testarDados(Solucao &s, std::string arq);
-
-void testarDadosComTempo(Solucao &s, std::string arq, double tempo_total, double tempo_melhor);
 
 void lerSolucaoDeArquivo(Solucao &s, std::string path);
 
@@ -64,8 +64,6 @@ void testarVNS(Solucao &s);
 void testarHeuBLPMs(Solucao &s, int funcao);
 
 void solucaoInicialGulosa(Solucao &s);
-
-int gerarNumero(int lim_inf, int lim_sup);
 
 /*
 void heuConAle(Solucao &s);
