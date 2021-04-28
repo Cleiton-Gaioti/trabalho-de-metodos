@@ -16,7 +16,7 @@ int main() {
     double tempo_melhor, tempo_total; 
     string instancia[] = {"i25", "i100", "i250", "i500", "i750","i1000", "i13206", "i13206p8"};
 
-    for(int i = 0; i < 7; i++) {
+    for(int i = 0; i < 8; i++) {
         tempo_limite = tempo[i];
         lerArquivo("arquivos/" + instancia[i] + ".txt");
 
