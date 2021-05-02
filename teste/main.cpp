@@ -12,32 +12,26 @@ int main(int argc, char *argv[]) {
 
     Solucao sol;
     double tempo_melhor, tempo_total; 
+    int seeds[] = {0, 398647, 839458745};
+    int tempo[] = {60, 60, 60, 60, 60, 120, 1800, 1800};
+    string instancia[] = {"i25", "i100", "i250", "i500", "i750","i1000", "i13206", "i13206p8"};
+
+    FILE* f = fopen("saida.txt", "w");
     
-    if (argc > 1) {
-        int seed = stoi(argv[1]);
-        string instancia = argv[2];
-        int tempo = stoi(argv[3]);
-        string saida = argv[4];
+    for(int i = 0; i < 8; i++) {
+        tempo_limite = tempo[i];
+        lerArquivo("arquivos/" + instancia[i] + ".txt");
 
-        lerArquivo(instancia);
-        vns(sol, tempo_melhor, tempo_total);
-
-    } else {
-        int seeds[] = {0, 398647, 839458745};
-        int tempo[] = {60, 60, 60, 60, 60, 120, 1800, 1800};
-        string instancia[] = {"i25", "i100", "i250", "i500", "i750","i1000", "i13206", "i13206p8"};
-
-        for(int i = 0; i < 8; i++) {
-            tempo_limite = tempo[i];
-            lerArquivo("arquivos/" + instancia[i] + ".txt");
-
-            for(int j = 0; j < 3; j++) {
-                srand(seeds[j]);
-                vns(sol, tempo_melhor, tempo_total);
-                testarDadosComTempo(sol, "solucoes/" + instancia[i] + ".sol" + to_string(j+1), tempo_total, tempo_melhor);
-            }
+        for(int j = 0; j < 3; j++) {
+            srand(seeds[j]);
+            vns(sol, tempo_melhor, tempo_total);
+            testarDados(sol, "solucoes/" + instancia[i] + ".sol" + to_string(j+1));
+            fprintf(f, "%s\t%d\t%d\t\t%d\t\t%.5lf\t\t%.5lf\n", instancia[i].c_str(), j+1, seeds[j], sol.funcao_objetivo, tempo_melhor, tempo_total);
         }
+        fprintf(f, "##################################################################n");
     }
+    fclose(f);
+
     return 0;
 }
 
@@ -365,31 +359,6 @@ int gerarNumero(int lim_inf, int lim_sup){
     return(lim_inf + rand() % (lim_sup - lim_inf + 1));
 }
 
-/* Escreve em arquivo a solução gerada incluindo o tempo de execução */
-
-void testarDadosComTempo(Solucao &s, string arq, double tempo_total, double tempo_melhor) {
-    FILE *f;
-    if(arq.empty()) 
-        f = stdout;
-    else 
-        f = fopen(arq.c_str(), "w");
-    fprintf(f, "Tempo de Execucao: %.5lf\n", tempo_total);
-    fprintf(f, "Tempo melhor solucao %.5lf\n", tempo_melhor);
-    fprintf(f, "Numero de pontos %d\n", numeroDePontos);
-    fprintf(f, "Numero de posicoes candidatas %d\n", numeroDePosicoesCandidatas);
-    fprintf(f, "Numero de conflitos %d\n", s.numeroDeConflitos);
-    fprintf(f, "Valor da FO %d\n", s.funcao_objetivo);
-
-    fprintf(f, "Posição de cada ponto\n");
-    for(int i = 0; i < numeroDePontos; i++)
-        fprintf(f, "%d\n", (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas) == 0 ? numeroDePosicoesCandidatas : (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas));
-            //fprintf(f, "%d\n", s.posicaoDosPontos[i]);
-   
-
-    if(arq != "")
-        fclose(f);
-}
-
 /*
  *  Lê os dados de entrada e armazena no vetor de Posições Candidatas,
  *  cada posição do vetor é um struct Campo, que armazena o id da posição,
@@ -499,13 +468,10 @@ void testarDados(Solucao &s, string arq) {
     fprintf(f, "Numero de conflitos %d\n", s.numeroDeConflitos);
     fprintf(f, "Valor da FO %d\n", s.funcao_objetivo);
 
-    if(f != stdout){
-        fprintf(f, "Posição de cada ponto\n");
-        for(int i = 0; i < numeroDePontos; i++)
-            //fprintf(f, "%d\n", s.posicaoDosPontos[i]);
-            fprintf(f, "%d\n", (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas) == 0 ? numeroDePosicoesCandidatas : (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas));
-    } else
-        cout << "Solução completa gerada no arquivo solHeuConGul.txt\n" << endl;
+    fprintf(f, "Posição de cada ponto\n");
+    for(int i = 0; i < numeroDePontos; i++)
+        //fprintf(f, "%d\n", s.posicaoDosPontos[i]);
+        fprintf(f, "%d\n", (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas) == 0 ? numeroDePosicoesCandidatas : (s.posicaoDosPontos[i] % numeroDePosicoesCandidatas));
 
     if(arq != "")
         fclose(f);

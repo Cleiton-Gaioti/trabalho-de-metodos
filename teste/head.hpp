@@ -39,8 +39,6 @@ void heuBLPM3(Solucao &s, clock_t hi);
 
 int gerarNumero(int lim_inf, int lim_sup);
 
-void testarDadosComTempo(Solucao &s, std::string arq, double tempo_total, double tempo_melhor);
-
 void lerArquivo(std::string arq);
 
 void heuConGul(Solucao &s);
